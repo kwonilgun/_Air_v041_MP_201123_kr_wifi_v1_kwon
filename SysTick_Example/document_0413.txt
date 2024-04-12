@@ -1,0 +1,7 @@
+
+1. VSCode 터미널에서 - Powershell 프롬프트 경로 짧게 하기 :
+    참조 사이트: https://enjoytools.net/xe/board_vngc57/8549
+
+    하기의 코드를 터미널에서 실행을 하면 된다.
+    
+    function prompt {  $host.ui.rawui.WindowTitle = "PS $pwd";  $p = 'PS ' + ($pwd -split '\\')[0]+' '+$(($pwd -split '\\')[-1] -join '\') + '> ';  return $p 
