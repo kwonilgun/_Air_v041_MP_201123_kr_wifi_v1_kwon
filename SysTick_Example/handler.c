@@ -2736,6 +2736,32 @@ void serial_disinfect(struct IotCommandSet *command){
     changeState(STATE_DIS, FALSE);
 }
 
+void serial_ion(struct IotCommandSet *command){//cho: 2024-4-15
+    printf("\r\n serial_ion duration = ", command->duration);
+    control_relayAllOff();
+    //LED control
+    control_disLed();
+    continueOperation = FALSE;
+    disInfo.disTimer = atoi(command->duration) * 60;
+    segmentControl(disInfo.disTimer / 60);
+    voicePlay(SWITCH_ANION_MODE, DELAY_ANION_MODE);
+    Delay(DELAY_ANION_MODE);
+    changeState(STATE_ION, FALSE);
+}
+
+void serial_plasma(struct IotCommandSet *command){//cho: 2024-4-15
+    printf("\r\n serial_plasma duration = ", command->duration);
+    control_relayAllOff();
+    //LED control
+    control_disLed();
+    continueOperation = FALSE;
+    disInfo.disTimer = atoi(command->duration) * 60;
+    segmentControl(disInfo.disTimer / 60);
+    voicePlay(SWITCH_PLASMA_MODE, DELAY_PLASMA_MODE);
+    Delay(DELAY_PLASMA_MODE);
+    changeState(STATE_STER, FALSE);
+}
+
 void serial_handler(struct IotCommandSet *command){
 
   printf("\r\n\r\n******** serial_handler start ***************\r\n"); 
@@ -2744,21 +2770,31 @@ void serial_handler(struct IotCommandSet *command){
   printf("\r\nserial_handler command wind = %s\r\n\r\n", command->wind);
   printf("\r\nserial_handler command duration  = %s\r\n\r\n", command->duration);
    
-  if(strcmp(command->mode, "1") == 0)
+  if(strcmp(command->mode, "2") == 0) //disinfect mode  //cho: 2024-4-15
   {
     printf("\r\rn disinfect mode enter ....");
     serial_disinfect(command);
   }
-  else if(strcmp(command->mode, "2") == 0)
-  {
-    printf("\r\rn ion mode enter ....");
-  }
   else if(strcmp(command->mode, "3") == 0)
   {
-    printf("\r\n plasma mode enter ....");
+    printf("\r\rn ion mode enter ....");
+    serial_ion(command);
   }
-  
-
+  else if(strcmp(command->mode, "1") == 0)//plasma mode  //cho: 2024-4-15
+  {
+    printf("\r\n plasma mode enter ....");
+    serial_plasma(command);
+    command->mode = "2";
+    printf("\r\n disinfect mode enter ....");
+    serial_disinfect(command);
+    command->mode = "3";
+    printf("\r\n ion mode enter ....");
+    serial_ion(command); 
+  }
+  else //error mode //cho: 2024-4-15
+  {
+    printf("\r\n mode error ....");
+  }
 }
 
 
