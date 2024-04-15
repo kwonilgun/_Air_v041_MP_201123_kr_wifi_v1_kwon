@@ -92,7 +92,7 @@ unsigned char statusDIP1 = 1;
 
 
 //kwon: 2024-4-13 
-struct IotCommandSet iotCommandSet = {"","","",""};
+struct IotCommandSet iotCommandSet = {"","","","",""};
 
 
 //void USART6_SendString(char *str){
@@ -178,21 +178,39 @@ void serial_input_cmd_handler() {
             if(strcmp(switchInfo.switchType, "power")  == 0 && strcmp(switchInfo.switchState, "on") == 0) {
                printf("\r\n rx power on from serial-6 \r\n");
                
-              //  g_remoteFlag = TNY_POWER_FLAG;
+               g_remoteFlag = TNY_POWER_FLAG;
               // iotCommandSet.power = 'on';
-              strcpy(iotCommandSet.power, "on");
+              // strcpy(iotCommandSet.power, "on");
 
                       
             }
             else if(strcmp(switchInfo.switchType, "power")  == 0 && strcmp(switchInfo.switchState, "off") == 0) {
                printf("\r\n rx power off from serial-6 \r\n");
                
-              //  g_remoteFlag = TNY_POWER_FLAG;
+               g_remoteFlag = TNY_POWER_FLAG;
               // iotCommandSet.power = 'off';
-              strcpy(iotCommandSet.power, "off");
+              // strcpy(iotCommandSet.power, "off");
                       
             }
                       
+            else if(strcmp(switchInfo.switchType, "mode")  == 0 && strcmp(switchInfo.switchState, "1") == 0) {
+               printf("\r\n rx disinfect mode from serial-6 \r\n");
+              //  iotCommandSet.wind = '1';
+               strcpy(iotCommandSet.mode, "1");
+             
+            }
+            else if(strcmp(switchInfo.switchType, "mode")  == 0 && strcmp(switchInfo.switchState, "2") == 0) {
+               printf("\r\n rx ion mode from serial-6 \r\n");
+              // iotCommandSet.wind = '2';
+              strcpy(iotCommandSet.mode, "2");
+            }
+            else if(strcmp(switchInfo.switchType, "mode")  == 0 && strcmp(switchInfo.switchState, "3") == 0) {
+                           printf("\r\n rx wind strong medium from serial-6 \r\n");
+              //  iotCommandSet.wind = '3'; 
+              strcpy(iotCommandSet.mode, "3");          
+            } 
+            
+
             else if(strcmp(switchInfo.switchType, "wind")  == 0 && strcmp(switchInfo.switchState, "1") == 0) {
                printf("\r\n rx wind weak from serial-6 \r\n");
               //  iotCommandSet.wind = '1';
@@ -209,6 +227,8 @@ void serial_input_cmd_handler() {
               //  iotCommandSet.wind = '3'; 
               strcpy(iotCommandSet.wind, "3");          
             } 
+
+
              else if(strcmp(switchInfo.switchType, "duration")  == 0 && strcmp(switchInfo.switchState, "30") == 0) {
                printf("\r\n rx duration - STATE_SERIAL_READY_DIS : 30 from serial-6 \r\n");
               //  g_remoteFlag = TNY_MODE_FLAG;
@@ -375,6 +395,7 @@ int main(void)
       //초기화
       strcpy(iotCommandSet.start, "");
       strcpy(iotCommandSet.power, "");
+      strcpy(iotCommandSet.mode, "");
       strcpy(iotCommandSet.wind, "");
       strcpy(iotCommandSet.duration, "");
     }

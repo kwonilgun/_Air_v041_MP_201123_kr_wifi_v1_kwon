@@ -139,12 +139,12 @@ void  checkStart()
         break;
     }
 
-      if (consumableCheck()) {     // SJM 200528 add
-        changeState(STATE_CONSUMABLE_WARNING,FALSE);
-      }
-      else {
-        changeState(destState, FALSE);
-      }
+    if (consumableCheck()) {     // SJM 200528 add
+      changeState(STATE_CONSUMABLE_WARNING,FALSE);
+    }
+    else {
+      changeState(destState, FALSE);
+    }
   }
 
 }
@@ -2723,13 +2723,42 @@ void handleSetup()
 }
 
 
+void serial_disinfect(struct IotCommandSet *command){
+    printf("\r\n serial_disinfect duration = ", command->duration);
+    control_relayAllOff();
+    //LED control
+    control_disLed();
+    continueOperation = FALSE;
+    disInfo.disTimer = atoi(command->duration) * 60;
+    segmentControl(disInfo.disTimer / 60);
+    voicePlay(SWITCH_DISINFECT_MODE, DELAY_DISINFECT_MODE);
+    Delay(DELAY_DISINFECT_MODE);
+    changeState(STATE_DIS, FALSE);
+}
+
 void serial_handler(struct IotCommandSet *command){
 
   printf("\r\n\r\n******** serial_handler start ***************\r\n"); 
   printf("\r\nserial_handler command power = %s\r\n", command->power); 
+  printf("\r\nserial_handler command mode = %s\r\n\r\n", command->mode);
   printf("\r\nserial_handler command wind = %s\r\n\r\n", command->wind);
   printf("\r\nserial_handler command duration  = %s\r\n\r\n", command->duration);
    
+  if(strcmp(command->mode, "1") == 0)
+  {
+    printf("\r\rn disinfect mode enter ....");
+    serial_disinfect(command);
+  }
+  else if(strcmp(command->mode, "2") == 0)
+  {
+    printf("\r\rn ion mode enter ....");
+  }
+  else if(strcmp(command->mode, "3") == 0)
+  {
+    printf("\r\n plasma mode enter ....");
+  }
+  
+
 }
 
 
@@ -2737,6 +2766,7 @@ void handler()
 {
   switch(currentState) {
     case STATE_POWER_OFF:
+      // printf("\r\n STATE_POWER_OFF - [ Current State = %d, entrance = %d ]", currentState, isFirstEntrance);
       handlePowerOff();
       break;
     case STATE_INIT:

@@ -11,3 +11,11 @@
 /settings/*
 /STM324xG_EVAL/*
 /temp/*     # temp 디렉토리 내의 모든 파일 제외
+/SysTick_Example/settings/*
+/SysTick_Example/*.xml
+/SysTick_Example/*.html
+/SysTick_Example/*.eww
+/SysTick_Example/*.icf
+/SysTick_Example/*.zip
+/SysTick_Example/*.ewsample
+

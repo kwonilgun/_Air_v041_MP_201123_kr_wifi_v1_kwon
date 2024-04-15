@@ -49,7 +49,8 @@ struct IotCommandSet
 {
     char start[10];
     char power[10];
-    char wind[10];
+    char mode[10];    //1-살균, 2-음이온, 3-프라즈마 
+    char wind[10];  //1-약하게, 2-중간, 3-강하게
     char duration[10];
 
 };
