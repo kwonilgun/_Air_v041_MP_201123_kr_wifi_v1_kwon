@@ -4,8 +4,10 @@
 *.ewt       # 확장자가 .ewt인 모든 파일 제외
 *.ewp       # 확장자가 .ewt인 모든 파일 
 *.zip       # 확장자가 .zip 인 모든 파일 제외
-/200421_BK      # build 디렉토리 
-/IAR
-/settings
-/STM324xG_EVAL
+*.wsdt
+
+/200421_BK/*      # build 디렉토리 
+/IAR/*
+/settings/*
+/STM324xG_EVAL/*
 /temp/*     # temp 디렉토리 내의 모든 파일 제외

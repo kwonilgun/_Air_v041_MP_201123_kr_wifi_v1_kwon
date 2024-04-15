@@ -39,22 +39,8 @@ unsigned char prevOperation=DEFAULT_STATE;
 #endif
 
 extern unsigned char maxDispPower;      // SJM 201117 used for HPA_36C only
-//#ifdef  HPA_36C
-#if ( MACHINE == HPA_36C)
-  #ifdef  INCLUDE_STOP_MODE
-  extern unsigned char countIdleTime;  // flag to count Idle Time
-  extern unsigned short idleTimeSec;
-  extern unsigned char enterStopMode;
-  #endif
-  #ifdef  EXCLUDE_SUPPLIED_POWER
-  extern unsigned char extPowerSupplied,prevExtPower;
-  #endif
-//#endif
-//#ifdef  MONEY_STERILIZER
-#elif ( MACHINE == MONEY_STERILIZER )
-  extern int downTimer;
-  extern unsigned char controllerStarted;
-#endif
+
+
 
 #ifdef  INCLUDE_STRENGTHEN_OZONE
   unsigned int setTime, operatedTime;
@@ -92,16 +78,15 @@ void changeState(unsigned char state, unsigned char write)
     printf("\r\n{Plasma] OnTime = %d, OffTime = %d\r\n",plasmaOnTime,plasmaOffTime);
   }
 #endif
-  // SJM 191119 add safety transion when 'state' is abnormal.
+  // SJM 191119 add safety transion when 'state' is abnormal. state가 범위를 벗어나면 에러 처리
   if ((state<STATE_READY_STER)||(state>LAST_STATE)) {
     printf("\r\n [Abnormal Call : curState = %d, destState = %d\r\n", currentState, state);
     currentState = DEFAULT_STATE;
   }
   else
+
     currentState = state;
-#ifdef INCLUDE_STOP_MODE
-  setIdleTimer();
-#endif
+
   isFirstEntrance = TRUE;
   printf("\r\n>> switch to State %d\r\n", state);
   if (write) systemWrite();
@@ -123,8 +108,6 @@ unsigned int consumableCheck()
 void  checkStart()
 {
 //  static unsigned char alreadyChecked = FALSE;
-
- 
 
   if((g_remoteFlag==REMOTE_OK_FLAG) || (g_remoteFlag==REMOTE_OK_LONG_FLAG)||
           (g_remoteFlag==TNY_OK_FLAG) || (g_remoteFlag==TNY_OK_LONG_FLAG)) {
@@ -155,18 +138,12 @@ void  checkStart()
         printf("\r\n[Error State!! currentState = %d]\r\n", currentState);
         break;
     }
-//    if (alreadyChecked) {
-//      changeState(destState, FALSE);
-//      alreadyChecked = FALSE;
-//    }
-//    else {
+
       if (consumableCheck()) {     // SJM 200528 add
-//        alreadyChecked = TRUE;
         changeState(STATE_CONSUMABLE_WARNING,FALSE);
       }
       else {
         changeState(destState, FALSE);
-//        alreadyChecked = FALSE;
       }
   }
 
@@ -174,16 +151,12 @@ void  checkStart()
 
 void checkPowerOff(unsigned int nextState)
 {
-#ifdef USE_TNY_1311S_REMOTE
+
   if ((g_remoteFlag==BUTTON_POWER)||(g_remoteFlag==BUTTON_POWER_LONG)||
       (g_remoteFlag==TNY_POWER_FLAG)||(g_remoteFlag==TNY_POWER_FLAG)) {
-#else
-  if(g_remoteFlag & (BUTTON_POWER | BUTTON_POWER_LONG)) {
-#endif
+
     g_remoteFlag = 0;
-#ifdef INCLUDE_STOP_MODE
-    idleTimeSec = 0;
-#endif
+
     if (nextState == STATE_POWER_OFF) {
       voicePlay(SWITCH_POWER_OFF, DELAY_POWER_OFF);
       Delay(DELAY_POWER_OFF);
@@ -209,10 +182,7 @@ void checkBaseMode(unsigned char skip)
     g_remoteFlag = 0;
     changeState(STATE_READY_DIS,FALSE);
   }
-  #ifndef  HUNGARIAN_ISSUE
-  if (skip) return;       // SJM 200422 different control for setup mode
-                          //            without clearing "g_remoteFlag = 0"
-  #endif
+  
   //�ö�� ���
   if ((g_remoteFlag==BUTTON_PLASMA) || (g_remoteFlag==BUTTON_PLASMA_LONG)) {
     g_remoteFlag = 0;
@@ -235,29 +205,7 @@ void checkBaseMode(unsigned char skip)
     }
   }
 #else // USE_TNY_1311S_REMOTE
-  //Ion Mode
-  if(g_remoteFlag & (BUTTON_ANION | BUTTON_ANION_LONG)) {
-    g_remoteFlag = 0;
-    changeState(STATE_READY_ION,FALSE);
-  }
-  #ifdef  HUNGARIAN_ISSUE
-  if (skip) return;       // SJM 200422 different control for setup mode
-                          //            without clearing "g_remoteFlag = 0"
-  #endif
-  //��� ���
-  if(g_remoteFlag & (BUTTON_DISINFECT | BUTTON_DISINFECT_LONG)) {
-    g_remoteFlag = 0;
-    changeState(STATE_READY_DIS,FALSE);
-  }
-  #ifndef  HUNGARIAN_ISSUE
-  if (skip) return;       // SJM 200422 different control for setup mode
-                          //            without clearing "g_remoteFlag = 0"
-  #endif
-  //�ö�� ���
-  if(g_remoteFlag & (BUTTON_PLASMA | BUTTON_PLASMA_LONG)) {
-    g_remoteFlag = 0;
-    changeState(STATE_READY_STER,FALSE);
-  }
+
 #endif  // USE_TNY_1311S_REMOTE
 }
 
@@ -751,7 +699,7 @@ void handlePowerOff()
   if(isFirstEntrance == TRUE) {
     printf("\r\n [ STATE_POWER_OFF : %d ]", currentState);
     
-   //kwon �߰� : 2024-04-08
+   //kwon : 2024-04-08
     printf("\r\n 1. handlePowerOff g_remoteFlag = %x", g_remoteFlag);
       
       
@@ -761,29 +709,17 @@ void handlePowerOff()
     control_relayAllOff();
     ledAllOff();
     systemWrite();        // before Power-Off
-//    pidLEDOnFlag = FALSE;     SJM 190711 always assigned to 'FALSE' & never used
+
     pidDetect = FALSE;
-//    if(plasmaInfo.rsvOn == TRUE)
-//      ledControl(LED_RESERVE_ON, LED_ON);
-#ifdef  USE_TNY_1311S_REMOTE
+
     readyUpgrade = readySetup = engPW = 0;
-#endif
-#ifdef  INCLUDE_IWDG
+
     if (isWatchDog)
-  #if ( MACHINE == HPA_130W )
       ledControl(LED_POWER_ON,LED_ON);
-  #elif ( MACHINE == HPA_36C )
-      ledControl(LED_PID_ON,LED_ON);
-  #endif
+
     isWatchDog = FALSE;
-#endif
-#ifdef  AUTO_POWER_ON
-    currentState = STATE_INIT;  
-    isFirstEntrance = TRUE;
-  #ifdef INCLUDE_STOP_MODE
-    setIdleTimer();
-  #endif
-#endif
+
+
   }
   
   if (halfSecFlag) {
@@ -795,15 +731,8 @@ void handlePowerOff()
   }
 #ifdef  USE_TNY_1311S_REMOTE
   
-  
-  
-  
-  
   if (g_remoteFlag) {
-    
-    
-      
-      
+  
     switch (g_remoteFlag) {
       case TNY_SETUP_LONG_FLAG :
         if (readyUpgrade) {
@@ -863,12 +792,11 @@ void handlePowerOff()
       case TNY_POWER_FLAG :
       case TNY_POWER_LONG_FLAG :
         
-        
-        //kwon �߰� : 2024-04-08
+        //kwon  : 2024-04-08
         printf("\r\nhandlerPowerOff TNY_POWER_LONG_FLAG");
         
-        
         changeState(STATE_INIT,FALSE);
+
         break;
       default  : // clear Flags and 7-segment display
         segmentAlphaControl(' ',' ');
@@ -1091,16 +1019,16 @@ void handleInit()
     control_initLed();
     WhiteLed();
     //eeprom data loading.
-    systemRead();
-//#ifdef  MONEY_STERILIZER
-#if ( MACHINE == MONEY_STERILIZER )
-    changeState(STATE_MONEY_STANDBY,FALSE);
-#else
+    systemRead();//
+    
+
+    //changeState(STATE_MONEY_STANDBY,FALSE);
+
     pidDetect = FALSE;
-  #ifdef  MULTI_LANGUAGE
+
     segmentAlphaControl('L',LANGUAGE+'0');
     Delay(700);
-  #endif
+  
 
     switch (sysConfig.prevState) {
       case STATE_READY_STER :
@@ -1127,7 +1055,7 @@ void handleInit()
       changeState(STATE_CONSUMABLE_WARNING,FALSE);
     }
     else changeState(destState,FALSE);
-#endif // MONEY_STERILIZER  
+ 
   }
 }
 
@@ -1835,7 +1763,6 @@ void handleReadyDisinfect()
   if(isFirstEntrance == TRUE) {
     printf("\r\n [ STATE_READY_DIS : %d ]", currentState);
     
-    
     //kwon: 2024-4-9 
     printf("\r\n 1. handleReadyDisinfect: g_remoteFlag %x \r\n", g_remoteFlag);
     
@@ -1845,7 +1772,6 @@ void handleReadyDisinfect()
     control_relayAllOff();
     //LED control
     control_disLed();
-//    pidLEDOnFlag = FALSE;     SJM 190711 always assigned to 'FALSE' & never used
     //DIS FND
     continueOperation = FALSE;
     disInfo.disTimer = 60 * 60;
@@ -1896,13 +1822,7 @@ void handleReadyDisinfect()
   }
   //start
   checkStart();
-  checkBaseMode(0);
-  
-   //kwon: 2024-4-9 
-  //printf("\r\n 2. handleReadyDisinfect: g_remoteFlag %x \r\n", g_remoteFlag);
-  
-  
-  
+  checkBaseMode(0);  
   checkPowerOff(STATE_POWER_OFF);
 }
 
@@ -1979,9 +1899,12 @@ void handleDisinfect()
     g_remoteFlag = 0;
     changeState(STATE_DIS_STOP,TRUE);
   }
+  
   //time over
   if(disInfo.disTimer <= 0 && continueOperation == FALSE)
     changeState(STATE_READY_DIS,TRUE);
+
+
   checkPowerOff(STATE_POWER_OFF);
 }
 
@@ -2799,6 +2722,15 @@ void handleSetup()
   checkPowerOff(STATE_POWER_OFF);
 }
 
+
+void serial_handler(struct IotCommandSet *command){
+
+  printf("\r\n\r\n******** serial_handler start ***************\r\n"); 
+  printf("\r\nserial_handler command power = %s\r\n", command->power); 
+  printf("\r\nserial_handler command wind = %s\r\n\r\n", command->wind);
+  printf("\r\nserial_handler command duration  = %s\r\n\r\n", command->duration);
+   
+}
 
 
 void handler()

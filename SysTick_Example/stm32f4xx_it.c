@@ -612,20 +612,20 @@ volatile int string_started = 0;
 struct SwitchInfo switchInfo ={"",""};
 
 void parseSwitchInfo(const char *input, struct SwitchInfo *info) {
-    // �Է� ���ڿ����� �߰�ȣ ����
-    char *trimmedInput = strdup(input + 1); // ó�� �߰�ȣ ����
+    // 
+    char *trimmedInput = strdup(input + 1); // 
 
-    // �߰�ȣ�� ���� �� ���� �� �����Ƿ� �� �߰�ȣ ã��
+    //
     char *endBracket = strrchr(trimmedInput, '}');
     
     printf("endBracket = %s \r\n" ,  endBracket);
     
     if (endBracket != NULL)
-        *endBracket = '\0'; // �� �߰�ȣ ����
+        *endBracket = '\0'; // 
 
     
 
-    // �и��� ���ڿ����� switchType�� switchState ����
+    // 
      char *token = strtok(trimmedInput, ":");
      printf("token = %s \r\n", token );
      strcpy(info->switchType, token);
@@ -635,37 +635,33 @@ void parseSwitchInfo(const char *input, struct SwitchInfo *info) {
      strcpy(info->switchState, token);
      
 
-    free(trimmedInput); // ���� �Ҵ� ����
+    free(trimmedInput); 
 }
 
 void process_received_data(char *data, int length) {
-    // ���⼭ ���ŵ� �����͸� ó���մϴ�.
-    printf("Received string: %s\r\n", data);
+
+    printf("\r\nReceived string: %s\r\n", data);
     parseSwitchInfo(data, &switchInfo);
 }
 
 void USART6_IRQHandler(void) {
     if(USART_GetITStatus(USART6, USART_IT_RXNE) != RESET) {
         char received_char = USART_ReceiveData(USART6);
-
+       
         if(received_char == '[') {
-            // ���ŵ� ���ڿ��� ���۵����� ǥ��
+            //rx string 시작
             string_started = 1;
-            // ���۸� �ʱ�ȭ
             rx_head = 0;
             rx_buffer[rx_head] = '\0';
         } else if(received_char == ']' && string_started) {
-            // ���ŵ� ���ڿ��� �������� ǥ��
-            string_started = 0;
-            // ���ŵ� ������ ó��
+           //rx string 끝
+            string_started = 0;            
             process_received_data((char *)rx_buffer, rx_head);
         } else if(string_started) {
-            // ���ŵ� ���ڿ� �߰��� �ִ� ��� ���ۿ� �߰�
+            
             rx_buffer[rx_head++] = received_char;
-            // ���� �����÷ο� üũ
             if(rx_head >= MAX_RX_BUFFER)
                 rx_head = 0;
-            // ���ڿ� ���� �� ���� �߰�
             rx_buffer[rx_head] = '\0';
         }
 

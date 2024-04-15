@@ -37,19 +37,30 @@
 #define FALSE                       0
 #define TRUE                        1
     
-// kwon �߰� : 2024-4-5 ���� ������ ���� 
-    
-// SwitchInfo ����ü ����
+// kwon : 2024-4-5  
+// SwitchInfo : iot Cloud send command data type
 struct SwitchInfo {
     char switchType[20];
     char switchState[20];
 };
 
+// AWS iot cloud에서 보내온 명령 세트
+struct IotCommandSet
+{
+    char start[10];
+    char power[10];
+    char wind[10];
+    char duration[10];
+
+};
+
+
 // ���� ���� ����
 extern struct SwitchInfo switchInfo;
+//extern struct IotCommandSet iotCommandSet;
 
 // �Լ� ����
-void initializeSwitchInfo(const char *input);
+// void initializeSwitchInfo(const char *input);
 
 
 /**** MACHINE Specific Definitions *******************************************/
