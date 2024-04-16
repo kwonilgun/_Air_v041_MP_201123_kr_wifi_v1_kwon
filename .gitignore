@@ -1,0 +1,21 @@
+# .gitignore 파일 내용 예시
+*.dep       # 확장자가 .dep인 모든 파일 제외
+*.ewd       # 확장자가 .ewd인 모든 파일 제외
+*.ewt       # 확장자가 .ewt인 모든 파일 제외
+*.ewp       # 확장자가 .ewt인 모든 파일 
+*.zip       # 확장자가 .zip 인 모든 파일 제외
+*.wsdt
+
+/200421_BK/*      # build 디렉토리 
+/IAR/*
+/settings/*
+/STM324xG_EVAL/*
+/temp/*     # temp 디렉토리 내의 모든 파일 제외
+/SysTick_Example/settings/*
+/SysTick_Example/*.xml
+/SysTick_Example/*.html
+/SysTick_Example/*.eww
+/SysTick_Example/*.icf
+/SysTick_Example/*.zip
+/SysTick_Example/*.ewsample
+
