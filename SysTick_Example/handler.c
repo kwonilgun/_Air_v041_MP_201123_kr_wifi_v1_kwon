@@ -2784,10 +2784,10 @@ void serial_handler(struct IotCommandSet *command){
   {
     printf("\r\n plasma mode enter ....");
     serial_plasma(command);
-    command->mode = "2";
+    strcpy(command->mode, "2");
     printf("\r\n disinfect mode enter ....");
     serial_disinfect(command);
-    command->mode = "3";
+    strcpy(command->mode, "3");
     printf("\r\n ion mode enter ....");
     serial_ion(command); 
   }
