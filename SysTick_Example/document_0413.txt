@@ -1,0 +1,21 @@
+
+1. VSCode 터미널에서 - Powershell 프롬프트 경로 짧게 하기 :
+    참조 사이트: https://enjoytools.net/xe/board_vngc57/8549
+
+    하기의 코드를 터미널에서 실행을 하면 된다.
+    
+    function prompt {  $host.ui.rawui.WindowTitle = "PS $pwd";  $p = 'PS ' + ($pwd -split '\\')[0]+' '+$(($pwd -split '\\')[-1] -join '\') + '> ';  return $p }
+
+    
+2. 프로그램 실행 flow
+
+    1. main.c : main
+        - remote, timer, uart3,6 등 초기화
+        - changeState(STATE_POWER_OFF, FALSE); 최초에 state를 초기화한다.
+        - systemRead();
+        - while(1) - handler(), 계속 돌면서 event를 처리한다. 
+
+    2. handler.c 
+        - 최초 부팅 -> STATE_POWER_OFF -> handlePowerOff() 실행
+        -isFirstEntrance가 최초 FALSE ,
+        - power key를 click -> handlePoweroff() 에서 chageState(STATE_INIT, FALSE) -> handler -> handleInit() -> STATE_READY_DIS -> handleReadyDisinfect() , disInfo.disTimer = 60 * 60을 세팅한다. 살균을 하기 위한 준비를 한다. control_realyAllOff(), disInfo.disTimer = 60*60을 세팅하고, 이 상태에서 시간을 변경하고, OK 버튼이 입력된지를 루프를 돌면서 확인을 한다. -> OK 버튼이 입력되면   -> STATE_DIS 로 state 변경 handleDisinfect(), control_disRelayOn() 동작, 실질적 동작이 발생한다. 

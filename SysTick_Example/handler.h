@@ -24,6 +24,9 @@ extern unsigned char pidDetect;
 /* Function Types  ------------------------------------------------------------*/
 void handler();
 
+// kwon 2024-4-15
+void serial_handler(struct IotCommandSet * );
+
 extern void control_sterOn();
 extern void control_ledFont();
 extern void control_initLed();
