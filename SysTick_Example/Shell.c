@@ -81,12 +81,7 @@ extern unsigned int plasmaOffTime;
 extern unsigned char fanMode, genMode;
 #endif
 
-#ifdef  INCLUDE_BATTERY_CHECKER
-  extern unsigned int voltageValue;
-  #ifdef  INCLUDE_CHARGE_CONTROL
-    extern unsigned char chargeControl;
-  #endif
-#endif
+
 void command_exec()
 {
     char *opcode=pcommand[0];
@@ -106,132 +101,7 @@ void command_exec()
       printf("\r\n Power = %dV\r\n",value);
     }
 #endif
-#ifdef  INCLUDE_BATTERY_CHECKER
-    if (strcmp(opcode,"batmV")==0) {
-      value = CheckValue(pcommand[1]);
-      voltageValue = (unsigned int)(value*COEF_SLOPE+COEF_INTERCEPT);
-      printf("\r\n %dmV = %dV\r\n",value, voltageValue);
-    }
-    else if (strcmp(opcode,"batV")==0) {
-      value = CheckValue(pcommand[1]);
-      voltageValue = value;
-      printf("\r\n %dV = %dV\r\n",value, voltageValue);
-    }
-#endif
-#ifdef  INCLUDE_POWER_CONTROL
-    extern void initPowerControl();
-	
-    if (strcmp(opcode,"initPwr")==0) {
-      printf("\r\n [initPower]\r\n");
-      initPowerControl();
-    }
-    if (strcmp(opcode,"outA")==0) {
-      value = CheckValue(pcommand[1]);
-      value2 = CheckValue(pcommand[2]);
-      if ((value<0)||(value>15))
-        printf("[Usage] outA 0~15 0/1\r\n");
-      else if ((value2<0)||(value2>1))
-        printf("[Usage] outA 0~15 0/1\r\n");
-      else
-        GPIO_WriteBit(GPIOA,value,(BitAction)value2);
-    }
-    if (strcmp(opcode,"POWER")==0) {
-      value = CheckValue(pcommand[1]);
-      if ((value<0)||(value>1))
-        printf("[Usage] POWER 0/1\r\n");
-      else {
-        printf("\r\n POWER -> %d",value);
-        GPIO_WriteBit(GPIOA,GPIO_Pin_15,(BitAction)value);
-      }
-    }
-#endif
 
-#ifdef  INCLUDE_STOP_MODE
-void initStop(unsigned short hour, unsigned short min, unsigned short sec);
-void prepareRemoteSensor();      // remote port
-
-    if (strcmp(opcode,"WFI")==0) {
-		__WFI();
-    }
-    if (strcmp(opcode,"initSTOP")==0) {
-      value = CheckValue(pcommand[1]);
-      value2 = CheckValue(pcommand[2]);
-      if ((value>=0)&&(value<24)&&(value2>=0)&&(value2<60)) {
-        plasmaInfo.rsvOn = TRUE;
-        plasmaInfo.rsvTime = value;
-        printf("\r\n [initStop %02d:%02d]",value,value2);
-        initStop(value,value2,0);
-      }
-      else
-        printf("\r\n [Usage] initSTOP 0~23 0~59");
-    }
-    if (strcmp(opcode,"shReser")==0) {
-      printf("\r\n [Reserved %d at %02d]",plasmaInfo.rsvOn = TRUE,plasmaInfo.rsvTime);
-    }
-    if (strcmp(opcode,"setReser")==0) {
-      value = CheckValue(pcommand[1]);
-      value2 = CheckValue(pcommand[2]);
-      if (value==1) {
-        if ((value2>=0)&&(value2<24)) {
-          plasmaInfo.rsvOn = TRUE;
-          plasmaInfo.rsvTime = value2;
-          systemWrite();
-          printf("\r\n [Reserve at %02d]",plasmaInfo.rsvTime);
-        }
-        else {
-          printf("\r\n [Usage] setReser 0/1 0~23");
-        }
-      }
-      else if (value==0) {
-        plasmaInfo.rsvOn = FALSE;
-        plasmaInfo.rsvTime = value;
-        systemWrite();
-        printf("\r\n [UnReserve!!]");
-      }
-      else {
-        printf("\r\n [Usage] setResev 0/1 0~23");
-      }
-    }
-    if (strcmp(opcode,"stopFlag")==0) {
-      value = CheckValue(pcommand[1]);
-      if (value==1) stopFlag = 1;
-      else stopFlag = 0;
-      printf("\r\n stopFlag = %d",stopFlag);
-    }
-    if (strcmp(opcode,"uart")==0) {
-      printf("\r\n init UART5");
-      prepareRemoteSensor();
-    }
-    if (strcmp(opcode,"STOP")==0) {
-      value = CheckValue(pcommand[1]);
-      printf("\r\n [Enter STOP %d] with %d => ON,WFI\r\n",value,value);
-      GPIO_WriteBit(GPIOA,GPIO_Pin_15,Bit_RESET);
-      Delay(100);
-      stopFlag = 1;
-      intCounter = 0;
-//      prepareRemoteSensor();
-      switch (value) {
-        case 1 :
-	  PWR_EnterSTOPMode(PWR_Regulator_ON,PWR_STOPEntry_WFI);
-          break;
-        case 2 :
-	  PWR_EnterSTOPMode(PWR_Regulator_ON,PWR_STOPEntry_WFE);
-          break;
-        case 3 :
-	  PWR_EnterSTOPMode(PWR_Regulator_LowPower,PWR_STOPEntry_WFI);
-          break;
-        case 4 :
-	  PWR_EnterSTOPMode(PWR_Regulator_LowPower,PWR_STOPEntry_WFE);
-          break;
-        default :
-	  PWR_EnterSTOPMode(PWR_Regulator_ON,PWR_STOPEntry_WFE);
-          break;
-      }
-    }
-    if (strcmp(opcode,"STNBY")==0) {
-		PWR_EnterSTANDBYMode();
-    }
-#endif  // INCLUDE_STOP_MODE
 
 #ifdef  HUNGARIAN_ISSUE
     if (strcmp(opcode,"setOnTime")==0) {
@@ -505,24 +375,22 @@ void prepareRemoteSensor();      // remote port
       sysConfig.rciOperatingMin = value;
       systemWrite();
     }
+    
     if(strcmp(opcode, "consume") == 0) {
 //      systemRead();
       printf("Filter    : %d:%02d\r\n", sysConfig.filterCountMin/60, sysConfig.filterCountMin%60);
-//#ifndef HPA_36C  // SJM 200413 No UV-Lamp and Ozpne-Lamp in HPA_36C
-#if ( MACHINE == HPA_130W )
+
       printf("OzoneLamp : %d:%02d\r\n", sysConfig.ozoneLampCountMin/60, sysConfig.ozoneLampCountMin%60);
       printf("UvLamp    : %d:%02d\r\n", sysConfig.uvLampCountMin/60, sysConfig.uvLampCountMin%60);
-#endif
       printf("RCI cell  : %d:%02d\r\n", sysConfig.rciOperatingMin/60, sysConfig.rciOperatingMin%60);
     }
     if(strcmp(opcode, "consume2") == 0) {
+
       systemRead();
+
       printf("filter    : %d:%02d\r\n", sysConfig.filterCountMin/60, sysConfig.filterCountMin%60);
-//#ifndef HPA_36C  // SJM 200413 No UV-Lamp and Ozpne-Lamp in HPA_36C
-#if ( MACHINE == HPA_130W )
       printf("ozoneLamp : %d:%02d\r\n", sysConfig.ozoneLampCountMin/60, sysConfig.ozoneLampCountMin%60);
       printf("uvLamp    : %d:%02d\r\n", sysConfig.uvLampCountMin/60, sysConfig.uvLampCountMin%60);
-#endif
       printf("RCI cell  : %d:%02d\r\n", sysConfig.rciOperatingMin/60, sysConfig.rciOperatingMin%60);
     }
     if(strcmp(opcode, "usb") == 0) {
@@ -581,7 +449,7 @@ void GetUARTData()
                     command_analysis();
                 } 
                 command_str_idx = 0;
-                printf("\r\n=>");
+                printf("\r\n=> test ");
             }
         }
         else {

@@ -19,3 +19,11 @@
         - 최초 부팅 -> STATE_POWER_OFF -> handlePowerOff() 실행
         -isFirstEntrance가 최초 FALSE ,
         - power key를 click -> handlePoweroff() 에서 chageState(STATE_INIT, FALSE) -> handler -> handleInit() -> STATE_READY_DIS -> handleReadyDisinfect() , disInfo.disTimer = 60 * 60을 세팅한다. 살균을 하기 위한 준비를 한다. control_realyAllOff(), disInfo.disTimer = 60*60을 세팅하고, 이 상태에서 시간을 변경하고, OK 버튼이 입력된지를 루프를 돌면서 확인을 한다. -> OK 버튼이 입력되면   -> STATE_DIS 로 state 변경 handleDisinfect(), control_disRelayOn() 동작, 실질적 동작이 발생한다. 
+
+
+3. shell.c의 분석
+    1. shell은 uart terminal에서 명령을 받아서 실행을 하는 방식이다.
+        - time\r : 입력을 하면 시간을 보여준다. \r 을 체크해서 command_analysis()를 실행한다. 
+    2. systemRead() 는 eeprom에서 sysConfig로 데이타를 읽어 온다. 
+
+4.checkPowerOff() : power 버튼을 누르고 state를 바꾸어 준다. serial로 power off가 들어오면 state를  

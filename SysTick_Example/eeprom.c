@@ -68,13 +68,9 @@ void systemRead()
     sysConfig.dutyRatio = DEF_DUTY_RATIO;
 #endif
 
-//#ifndef HPA_36C
-#if ( MACHINE == HPA_130W)
+
   if ((sysConfig.plasmaInfo.pidOn!=0)&&(sysConfig.plasmaInfo.pidOn!=1))
     sysConfig.plasmaInfo.pidOn = TRUE;
-#else
-    sysConfig.plasmaInfo.pidOn = TRUE;
-#endif
   if ((sysConfig.plasmaInfo.pwr<1)||(sysConfig.plasmaInfo.pwr>MAX_PLASMA_PWR))
     sysConfig.plasmaInfo.pwr = MAX_PLASMA_PWR;
   if ((sysConfig.plasmaInfo.rsvOn!=0)&&(sysConfig.plasmaInfo.rsvOn!=1))
@@ -83,20 +79,11 @@ void systemRead()
     sysConfig.plasmaInfo.isScheduled = FALSE;
   if ((sysConfig.plasmaInfo.rsvTime<0)||(sysConfig.plasmaInfo.rsvTime>23))
     sysConfig.plasmaInfo.rsvTime = 1;     // to avoid RTC Fail...
-#ifdef  INCLUDE_STOP_MODE
-  if ((sysConfig.stopped!=FALSE)&&(sysConfig.stopped!=TRUE))
-    sysConfig.stopped = FALSE;
-#endif
+
 
   plasmaInfo = sysConfig.plasmaInfo;
   printf("eeread!!!\r\n");
-//#ifdef  MONEY_STERILIZER
-#if ( MACHINE == MONEY_STERILIZER )
-  if ((sysConfig.sterTime<MIN_STER_TIME)||(sysConfig.sterTime>MAX_STER_TIME)) {
-    printf("\r\n sterTime = %d\r\n",sysConfig.sterTime);
-    sysConfig.sterTime = DEF_STER_TIME;
-  }                                        
-#else
+
   if (plasmaInfo.rsvOn != TRUE) {   // SJM 200415 initialize
     if (plasmaInfo.rsvOn != FALSE) {
       printf("\r\n Initialize : %d,%d\r\n", plasmaInfo.rsvOn, plasmaInfo.rsvTime);
@@ -107,5 +94,5 @@ void systemRead()
       printf("\r\n Ozone reservation setting : %d,%d\r\n", plasmaInfo.rsvOn, plasmaInfo.rsvTime);
     }
   }
-#endif
+
 }

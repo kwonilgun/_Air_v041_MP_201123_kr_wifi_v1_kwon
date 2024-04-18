@@ -38,7 +38,7 @@ void voicePlay(unsigned int voice, unsigned int delay)
   Delay(50);
   
   g_voicePortDelay = delay;
-  printf("g_voicePortDelay : %d\r\n", g_voicePortDelay);
+  printf("\r\n Miscellanous.c g_voicePortDelay : %d\r\n", g_voicePortDelay);
   Delay(10);
   voicePlayFlag = TRUE;
   

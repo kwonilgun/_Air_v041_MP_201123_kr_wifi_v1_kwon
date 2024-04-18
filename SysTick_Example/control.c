@@ -41,7 +41,7 @@ void reduceOzoneLevel()
   // Leave Fan1 & Fan2 ON
 }  
 #endif // INCLUDE_OZONE_CONTROL
-//ÇÃ¶óÁî¸¶ ¸ðµå
+//ï¿½Ã¶ï¿½ï¿½î¸¶ ï¿½ï¿½ï¿½
 void control_sterOn()
 {  
 #ifdef  HUNGARIAN_ISSUE
@@ -123,7 +123,7 @@ void control_sterOff()
 
 void normalPlasmaSter()
 {
-#if 1
+
       if (plasmaBlinkOnFlag == TRUE) {
   #ifdef OZONE_TIME_TEST
         if ((plasmaInfo.pidOn==TRUE)&&(plasmaInfo.pwr==MAX_PLASMA_PWR)) {
@@ -152,22 +152,7 @@ void normalPlasmaSter()
         RTC_TimeShow();
         printf(" Plasma --> ON : %0.2d:%0.2d:%0.2d \n\r", RTC_TimeStructure.RTC_Hours, RTC_TimeStructure.RTC_Minutes, RTC_TimeStructure.RTC_Seconds);
       }
-#else
-      if (plasmaBlinkOn) {
-        control_sterOn();
-//        plasmaBlinkOffFlag = FALSE;
-        RTC_TimeShow();
-        printf(" Plasma --> ON : %0.2d:%0.2d:%0.2d \n\r", RTC_TimeStructure.RTC_Hours, RTC_TimeStructure.RTC_Minutes, RTC_TimeStructure.RTC_Seconds);
-      }
-      else {
-//      if (plasmaBlinkOnFlag == TRUE) {
-        control_sterOff();
-        //relayControl(RELAY_OZONE_LAMP, RELAY_OFF);       //OZONE Lamp
-        RTC_TimeShow();
-        printf(" Plasma --> OFF : %0.2d:%0.2d:%0.2d \n\r", RTC_TimeStructure.RTC_Hours, RTC_TimeStructure.RTC_Minutes, RTC_TimeStructure.RTC_Seconds);          
-//        plasmaBlinkOnFlag = FALSE;
-      }
-#endif
+
 }
 
 void control_disRelayOn()
@@ -196,17 +181,12 @@ void control_IonOn()
 void control_relayDestruction()
 {
 //#ifndef HPA_36C
-#if ( MACHINE == HPA_130W)
+
   //2016.12.7 - BJ Kim requested : COMMENT
   //relayControl(RELAY_PLASMA, RELAY_ON);           //PLASMA1  
   relayControl(RELAY_AC_FAN2, RELAY_ON);   //FAN2
   // 2016.12.12 BJ Kim Requested Enable UV Lamp 
   relayControl(RELAY_AC_UV, RELAY_ON);     //UV Lamp
-//#else
-#elif ( MACHINE == HPA_36C)
-  // 2020.08.20 added to destruct remaining Ozone. SJM
-  relayControl(RELAY_RCI, RELAY_ON);       //RCI
-#endif
   relayControl(RELAY_AC_FAN1, RELAY_ON);   //FAN1  
 }
 

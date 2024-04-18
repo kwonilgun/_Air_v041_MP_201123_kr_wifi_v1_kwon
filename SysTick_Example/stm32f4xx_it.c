@@ -237,43 +237,6 @@ void TIM2_IRQHandler(void)
     }
   }
 //#ifdef  HPA_36C
-#if ( MACHINE == HPA_36C)
-  #ifdef  INCLUDE_STOP_MODE
-  if (countIdleTime) {
-    idleTimer++;
-    if (idleTimer>=1000) {    // ONE_SEC
-      idleTimer = 0;
-      idleTimeSec++;
-      if ((idleTimeSec>=WAIT_AT_POWER_OFF)&&(currentState==STATE_POWER_OFF))
-        enterStopMode = TRUE;
-      if (idleTimeSec>=WAIT_AT_READY)
-        enterStopMode = TRUE;
-    }
-  }
-  #endif
-  if (quarterSecFlag==FALSE) {
-    quarterSecCounter++;
-    if (quarterSecCounter>=250) {
-      quarterSecFlag = TRUE;
-      quarterSecCounter =0;
-    }
-  }
-  if (++blinkLEDcounter>=500) {
-    blinkLEDcounter = 0;
-    blinkLED ^= 1;
-  }
-//#endif
-//#ifdef  MONEY_STERILIZER
-#elif ( MACHINE == MONEY_STERILIZER )
-  if ((currentState==STATE_MONEY_STER)||(currentState==STATE_MONEY_DECOMP)) {
-    if (controllerStarted) {
-      downTimer--;
-      if (downTimer<=0) {
-        controllerStarted = FALSE;
-      }
-    }
-  }
-#endif
   //key Check
   timer_key_check();
   //Led On control
@@ -283,12 +246,10 @@ void TIM2_IRQHandler(void)
       g_60hz = 0;
     }
     timerLed();
-#ifndef EXTEND_PIR_LAMP
-    if( currentState == STATE_STER ) {    // SJM 200911 make easy to check
-#else
+
     if( (currentState == STATE_STER)||(currentState == STATE_READY_STER)||
        (currentState == STATE_PREPARE)||(currentState == STATE_STER_STOP)) {
-#endif
+
         PIRLedTimer();
     }
     else if( !(currentState == STATE_POWER_OFF)) {
@@ -303,14 +264,7 @@ void TIM2_IRQHandler(void)
     readOzoneSensor();
   }
 #endif
-#ifdef  INCLUDE_BATTERY_CHECKER
-  // battery check 
-  if (++batteryCheck >= BATTERY_CHECK_TIME) {
-    batteryCheck = 0;
-    readBatteryVoltage();
-    batteryCheckFlag = TRUE;
-  }
-#endif  // INCLUDE_BATTERY_CHECKER
+
   //test timer and onesec Flag
   if(++testLedTimer >= ONESEC) {
       testLedTimer = 0;
@@ -415,22 +369,7 @@ void TIM2_IRQHandler(void)
       }
     }
   }       // end of (currentState == STATE_PREPARE)
-#ifdef ADD_REMOTE_OZONE_SENSOR
-    if(++fiveSecTimer > FIVESEC)
-    {
-      fiveSecTimer = 0;
-      if(g_remoteFlag >= REMOTE_OZ1_FLAG)
-      {
-        g_extOzoneSenseFlag = TRUE;
-        printf("\r\n g_extOzoneSenseFlag : TRUE");
-      }
-      else
-      {
-        g_extOzoneSenseFlag = FALSE;
-        printf("\r\n g_extOzoneSenseFlag : FALSE");        
-      }
-    }  
-#endif
+
   //�� ���� �ð� ī��Ʈ �� ����, ����, ī����
 //  if(currentState == STATE_STER || currentState == STATE_DIS ||  currentState == STATE_ION) {
     if(++plusCounterMin >= ONESEC * 60) { //minite

@@ -55,7 +55,7 @@ void RTC_TimeShow()
     /* Get the current Time and Date */
   RTC_GetTime(RTC_Format_BIN, &RTC_TimeStructure);
 //  printf("\n\r============== Current Time Display ============================\n\r");
-  printf("\n\r  The current time (Hour-Minute-Second) is :  %0.2d:%0.2d:%0.2d \n\r", RTC_TimeStructure.RTC_Hours, RTC_TimeStructure.RTC_Minutes, RTC_TimeStructure.RTC_Seconds);
+  printf("\r\n  The current time (Hour-Minute-Second) is :  %0.2d:%0.2d:%0.2d \n\r", RTC_TimeStructure.RTC_Hours, RTC_TimeStructure.RTC_Minutes, RTC_TimeStructure.RTC_Seconds);
   /* Unfreeze the RTC DR Register */
   (void)RTC->DR;
   

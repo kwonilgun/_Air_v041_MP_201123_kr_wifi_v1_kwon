@@ -65,7 +65,7 @@ void copyTime()
 void changeState(unsigned char state, unsigned char write)
 {
   sysConfig.prevState = currentState;
-#ifdef HUNGARIAN_ISSUE
+
   if (state==STATE_STER) {
     if (plasmaInfo.pidOn == TRUE) {
       plasmaOnTime = PLASMA_BLINK_ON_TIME;
@@ -75,9 +75,9 @@ void changeState(unsigned char state, unsigned char write)
       plasmaOnTime = (sysConfig.dutyRatio)*2;
       plasmaOffTime = 250-plasmaOnTime;
     }
-    printf("\r\n{Plasma] OnTime = %d, OffTime = %d\r\n",plasmaOnTime,plasmaOffTime);
+    printf("\r\n[Plasma] OnTime = %d, OffTime = %d\r\n",plasmaOnTime,plasmaOffTime);
   }
-#endif
+
   // SJM 191119 add safety transion when 'state' is abnormal. state가 범위를 벗어나면 에러 처리
   if ((state<STATE_READY_STER)||(state>LAST_STATE)) {
     printf("\r\n [Abnormal Call : curState = %d, destState = %d\r\n", currentState, state);
@@ -85,7 +85,7 @@ void changeState(unsigned char state, unsigned char write)
   }
   else
 
-    currentState = state;
+  currentState = state;
 
   isFirstEntrance = TRUE;
   printf("\r\n>> switch to State %d\r\n", state);
@@ -1062,17 +1062,17 @@ void handleInit()
 void handleReadyPlasmaSter()
 {
   static unsigned char editMode = 0;  // 0=Time, 1=Intensity
-#ifdef  HUNGARIAN_ISSUE
+
   static unsigned char pwrPIDon = 3;  // plasmaInfo.pwr when PID turns ON!
-#endif  
+ 
   if(isFirstEntrance == TRUE) {
     printf("\r\n [ STATE_READY_STER : %d ]", currentState);
     isFirstEntrance = FALSE;
     RTC_TimeShow();         // SJM 200506 for Debug
-#ifdef VOICE_FIRST
+
     voicePlay(SWITCH_PLASMA_MODE, DELAY_PLASMA_MODE);
     Delay(DELAY_PLASMA_MODE);
-#endif
+
     prevOperation = STATE_READY_STER;   // SJM 200506 debugged for normal(manual) operation
     //led Font on
     control_ledFont();
@@ -1083,9 +1083,9 @@ void handleReadyPlasmaSter()
     editMode = 0;
     plasmaInfo.pidOn = TRUE;
     plasmaInfo.pwr = MAX_PLASMA_PWR;
-#ifdef  HUNGARIAN_ISSUE
+
     pwrPIDon = 3;
-#endif
+
 	
     maxDispPower = plasmaInfo.pwr + 2;
 
@@ -1200,8 +1200,8 @@ void handleReadyPlasmaSter()
     editMode = 0;
     voicePlay(SWITCH_KEY, DELAY_KEY);
   }
-//#ifndef HPA_36C
-#if ( MACHINE == HPA_130W)
+
+
   //PID setting
   
   if((g_remoteFlag==REMOTE_PLASMA_FLAG)||(g_remoteFlag==REMOTE_PLASMA_LONG_FLAG)||
@@ -1212,9 +1212,9 @@ void handleReadyPlasmaSter()
     voicePlay(SWITCH_KEY, DELAY_KEY);
     plasmaInfo.pidOn ^= 1;
     // SJM 200508 PID & continueOperation are exclusive.
-  #ifndef HUNGARIAN_ISSUE
+
     if (plasmaInfo.pidOn) continueOperation = FALSE;
-  #else
+  
     if (plasmaInfo.pidOn) {
       continueOperation = FALSE;
       plasmaInfo.pwr = pwrPIDon;
@@ -1223,16 +1223,11 @@ void handleReadyPlasmaSter()
       pwrPIDon = plasmaInfo.pwr;  // backup pwr for PID_ON
       plasmaInfo.pwr = 1;     // SJM 200922 default for power is 1 for PID_OFF
     }
-  #endif
+  
     ledControl(LED_PID_ON,plasmaInfo.pidOn);
   } // End of PID setting
+  
   //Time setting
-//  if (g_remoteFlag & ( BUTTON_TIME )) {
-//    g_remoteFlag = 0;
-//    editMode = 0;
-//    voicePlay(SWITCH_KEY, DELAY_KEY);
-//  }
-  //Continuation Mode
 
   if ((g_remoteFlag==BUTTON_TIME_LONG)||(g_remoteFlag==REMOTE_UP_LONG_FLAG)) {
 
@@ -1242,14 +1237,14 @@ void handleReadyPlasmaSter()
     continueOperation = TRUE;
     // SJM 200508 PID & continueOperation are exclusive.
     plasmaInfo.pidOn = FALSE;
-    #ifdef  HUNGARIAN_ISSUE
+    
     pwrPIDon = plasmaInfo.pwr;  // backup pwr for PID_ON
     plasmaInfo.pwr = 1;     // SJM 200922 default for power is 1 for PID_OFF
-    #endif
+    
     ledControl(LED_PID_ON,plasmaInfo.pidOn);
     voicePlay(SWITCH_KEY, DELAY_KEY);
   }
-#endif  // ( MACHINE == HPA_130W)
+
   
   //up Key
   if (g_remoteFlag==REMOTE_UP_FLAG) {
@@ -1386,9 +1381,9 @@ void handlePrepare()
 
 void handlePlasmaSter()
 {
-#ifdef  OZONE_TIME_TEST
+
   unsigned char remainedHour,remainedMinutes;
-#endif
+
   
   if(isFirstEntrance == TRUE) {
     printf("\r\n [ STATE_STER : %d ]", currentState);
@@ -1401,9 +1396,9 @@ void handlePlasmaSter()
     plasmaBlinkOn = TRUE;
     plasmaBlinkOnTimer = 0;
     plasmaBlinkOffTimer = 0;
-#ifdef  INCLUDE_OZONE_CONTROL
+
     ozoneRangeOver = 0;
-#endif
+
     //voice play
     voicePlay(SWITCH_PLASMA_START, DELAY_PLASMA_START);
     Delay(DELAY_PLASMA_START);
@@ -1413,41 +1408,23 @@ void handlePlasmaSter()
     control_sterStartLedOn();
     //���� ������ ���
     if(plasmaInfo.isScheduled) {    // SJM 190724 'Scheduld' start
-#ifdef  INCLUDE_RESERVATION_OPERATION_CONTROL
+
       continueOperation = FALSE;    // SJM 200507 
       plasmaInfo.pidOn = TRUE;
-    #ifdef  REDUCE_TIME_TO_TEST
-        plasmaInfo.plasmaTimer = sysConfig.revOperMin;            // SJM 191018 for test-only
-//        plasmaInfo.pidOn = FALSE;
-    #else // REDUCE_TIME_TO_TEST
+    
         plasmaInfo.plasmaTimer = sysConfig.revOperMin * 60;
 //        plasmaInfo.pidOn = TRUE;
-    #endif // REDUCE_TIME_TO_TEST
-#else
-  #ifndef INCLUDE_RETURN_TO_CONTINUOUS_MODE
-      plasmaInfo.plasmaTimer = 95 * 60;
-      plasmaInfo.pidOn = TRUE;
-  #else // INCLUDE_RETURN_TO_CONTINUOUS_MODE
-      continueOperation = FALSE;    // SJM 200507 
-      plasmaInfo.pidOn = TRUE;
-    #ifdef  REDUCE_TIME_TO_TEST
-        plasmaInfo.plasmaTimer = 95;            // SJM 191018 for test-only
-//        plasmaInfo.pidOn = FALSE;
-    #else // REDUCE_TIME_TO_TEST
-        plasmaInfo.plasmaTimer = 95 * 60;
-//        plasmaInfo.pidOn = TRUE;
-    #endif // REDUCE_TIME_TO_TEST
-  #endif  // INCLUDE_RETURN_TO_CONTINUOUS_MODE
-#endif  // INCLUDE_RESERVATION_OPERATION_CONTROL
+    
+
       plasmaInfo.isScheduled = FALSE;
       plasmaInfo.pwr = MAX_PLASMA_PWR;
       maxDispPower = plasmaInfo.pwr + 2;
     }
-#ifdef  INCLUDE_STRENGTHEN_OZONE
+
     setTime = plasmaInfo.plasmaTimer;
-        printf("\r\n[Plasma] setTime = %d(%d)\r\n",
+    printf("\r\n handlePlasmaSter: [Plasma] setTime = %d(%d)\r\n",
                setTime, plasmaInfo.plasmaTimer);
-#endif    
+    
     if(plasmaInfo.pidOn == TRUE) {
       ledControl(LED_PID_ON, LED_ON);
     }
@@ -1455,15 +1432,10 @@ void handlePlasmaSter()
 
   if (halfSecFlag) {
     halfSecFlag = FALSE;
-#ifdef OZONE_TIME_TEST
-  #ifdef  REDUCE_TIME_TO_TEST
-    remainedHour = plasmaInfo.plasmaTimer/60;
-    remainedMinutes  = plasmaInfo.plasmaTimer%60;
-  #else
+
     remainedHour = plasmaInfo.plasmaTimer/3600;
     remainedMinutes  = (plasmaInfo.plasmaTimer/60)%60;
-  #endif
-#endif
+  
     // Display Part
     switch (segmentCycle) {
       case 1 :  // SJM 190810 display remained time
@@ -1474,14 +1446,14 @@ void handlePlasmaSter()
         if(continueOperation) segmentAlphaControl('O','n');
         else                  segmentControl(remainedMinutes);
         break;
-//#ifndef HPA_36C
-#if ( MACHINE == HPA_130W)
+
+
       case 3 :  // SJM 190810 display local sensor value
         if(dOzoneSensoredValue < 99)
           segmentControl( (unsigned int)(dOzoneSensoredValue) );
         else  segmentControl(99);
         break;
-#endif
+
     }
     if (++segmentCycle>STER_INFO_DISP_CYCLE) segmentCycle = 1;
     ledStatus ^= 1;
@@ -1490,9 +1462,12 @@ void handlePlasmaSter()
 
     // Control Part
 //#ifndef HPA_36C
-#if ( MACHINE == HPA_130W)
-  #ifdef INCLUDE_OZONE_CONTROL
+
+  
     if (plasmaInfo.pidOn) {
+     
+      printf("\r\n kwon: plasmaInfo.pidOn = %c", plasmaInfo.pidOn);
+
       normalPlasmaSter();
     }
     else {
@@ -1504,11 +1479,11 @@ void handlePlasmaSter()
         if (ozoneRangeOver>=OZONE_OVER_LIMIT) {
           voicePlay(SWITCH_OZONE_DETECT, DELAY_OZONE_DETECT);
           Delay(DELAY_OZONE_DETECT);
-    #ifdef  INCLUDE_STRENGTHEN_OZONE
+  
           operatedTime = setTime - plasmaInfo.plasmaTimer;
-          printf("\r\n[Plasma] opTime = %d(%d) = %d - %d\r\n",
+          printf("\r\n ******** kwon: [Plasma] opTime = %d(%d) = %d - %d\r\n",
                operatedTime, operatedTime/60, setTime, plasmaInfo.plasmaTimer);
-    #endif
+    
           changeState(STATE_DESTRUCTION,TRUE);
         }
       }
@@ -1525,47 +1500,35 @@ void handlePlasmaSter()
         printf("{OzoneControlMode : Local = %d , Remote = %d\r\n",dOzoneSensoredValue, g_RemoteOzoneSensorValue);
       }
     }
-  #else // INCLUDE_OZONE_CONTROL
-    #ifdef  ADD_REMOTE_OZONE_SENSOR  
-    if( (g_RemoteOzoneSensorValue > 50) || (dOzoneSensoredValue > 50) ) {
-      voicePlay(SWITCH_OZONE_DETECT, DELAY_OZONE_DETECT);
-      Delay(DELAY_OZONE_DETECT);
-      #ifdef  INCLUDE_STRENGTHEN_OZONE
-      operatedTime = setTime - plasmaInfo.plasmaTimer;
-        printf("\r\n[Plasma] opTime = %d(%d) = %d - %d\r\n",
-               operatedTime, operatedTime/60, setTime, plasmaInfo.plasmaTimer);
-      #endif
-      changeState(STATE_DESTRUCTION,TRUE);
-    }
-    #endif // ADD_REMOTE_OZONE_SENSOR
-  #endif  // INCLUDE_OZONE_CONTROL
-//#else // HPA_36C
-#elif ( MACHINE == HPA_36C)
-    normalPlasmaSter();
-#endif
+  
+
+
   }
  
   //time over
   if(plasmaInfo.plasmaTimer <= 0 && continueOperation == FALSE) {
-#ifdef  INCLUDE_STRENGTHEN_OZONE
+    printf("\r\n kwon: timeover: plasmaInfo.plasmaTimer = %d", plasmaInfo.plasmaTimer);
+
     operatedTime = setTime;
-        printf("\r\n[Plasma] opTime = %d(%d) = %d - %d\r\n",
+
+    printf("\r\nkwon: time over: [Plasma] opTime = %d(%d) = %d - %d\r\n",
                operatedTime, operatedTime/60, setTime, plasmaInfo.plasmaTimer);
-#endif
+
     changeState(STATE_DESTRUCTION,TRUE);
     printf("Time Over!!\r\n");
   }
+
   //PIR control
   if(plasmaInfo.pidOn == TRUE) {
     if(pidDetect == TRUE) {
       voicePlay(SWITCH_PIR_DETECT, DELAY_PIR_DETECT);
       Delay(DELAY_PIR_DETECT);
       pidDetect = FALSE;
-#ifdef  INCLUDE_STRENGTHEN_OZONE
+
       operatedTime = setTime - plasmaInfo.plasmaTimer;
-        printf("\r\n[Plasma] opTime = %d(%d) = %d - %d\r\n",
+        printf("\r\n kwon: PIR control: [Plasma] opTime = %d(%d) = %d - %d\r\n",
                operatedTime, operatedTime/60, setTime, plasmaInfo.plasmaTimer);
-#endif
+
       changeState(STATE_DESTRUCTION,TRUE);
     }
   }
@@ -1573,26 +1536,22 @@ void handlePlasmaSter()
   // SJM 201117 Can't display current Intensity when used with TNY_1311S ==> No Problem
   if((g_remoteFlag==REMOTE_ION_FLAG)||(g_remoteFlag==REMOTE_ION_LONG_FLAG)) {
     g_remoteFlag = 0;
-//#ifndef HPA_36C
-#if ( MACHINE == HPA_130W)
+
     segmentControlIntensity(plasmaInfo.pwr);
     Delay(800);
-#endif
+
     if(continueOperation) segmentAlphaControl('O','n');
     else    segmentControl(plasmaInfo.plasmaTimer / 60);
   }
   //STOP
-#ifdef  USE_TNY_1311S_REMOTE
+
   if ((g_remoteFlag==REMOTE_OK_LONG_FLAG)||(g_remoteFlag==REMOTE_OK_FLAG)||
      (g_remoteFlag==TNY_OK_FLAG)||(g_remoteFlag==TNY_OK_LONG_FLAG)) {
-#else
-  if((g_remoteFlag==REMOTE_OK_LONG_FLAG)||(g_remoteFlag==REMOTE_OK_FLAG)) {
-#endif
+
     g_remoteFlag = 0;
-#ifdef INCLUDE_STOP_MODE
-    idleTimeSec = 0;
-#endif
+
     changeState(STATE_STER_STOP,TRUE);
+
     printf("go ster stop\r\n");
   }
   checkPowerOff(STATE_POWER_OFF);
@@ -1663,49 +1622,35 @@ void handleDestruction()
     printf("\r\n [ STATE_DESTRUCTION : %d ]", currentState);
     isFirstEntrance = FALSE;  
     RTC_TimeShow();         // SJM 200506 for Debug
-#ifndef VOICE_FIRST
-    //voice Play(����� ���� ��)
-    voicePlay(SWITCH_DESTRUCTION_START, DELAY_DESTRUCTION_START);
-    Delay(DELAY_DESTRUCTION_START);
-    //relay Control
-    control_relayAllOff();
-    control_relayDestruction();
-#else
+
     control_relayAllOff();
     //voice Play(����� ���� ��)
     voicePlay(SWITCH_DESTRUCTION_START, DELAY_DESTRUCTION_START);
     Delay(DELAY_DESTRUCTION_START);
     //relay Control
     control_relayDestruction();
-#endif
+
     //Led Control
     control_desLed();
     segmentCycle = 1;
     maxDispPower = 4;
 //    ledAllOff();    
-    #ifndef REDUCE_TIME_TO_TEST
+  
       destructionTimer = operatedTime/60;
       if (destructionTimer<30)      destructionTimer=30;
       else if (destructionTimer>120) destructionTimer=120;
+      
       destructionTimer *= 60;
-    #else
-      destructionTimer = operatedTime;
-      if (destructionTimer<30)      destructionTimer=30;
-      else if (destructionTimer>120) destructionTimer=120;
-    #endif
+
       printf("\r\n[Destruction] timer = %d (%d)\r\n",destructionTimer,operatedTime);
   }
+
   if (halfSecFlag) {
     halfSecFlag = FALSE;
-#ifdef OZONE_TIME_TEST
-  #ifdef  REDUCE_TIME_TO_TEST
-    remainedHour = destructionTimer/60;
-    remainedMinutes  = destructionTimer%60;
-  #else
+
     remainedHour = destructionTimer/3600;
     remainedMinutes  = (destructionTimer/60)%60;
-  #endif
-#endif
+
     // Display Part
     switch (segmentCycle) {
       case 1 :  // SJM 190810 display remained time
@@ -1714,14 +1659,13 @@ void handleDestruction()
       case 2 :  // SJM 190810 display remained time
         segmentControl(remainedMinutes);
         break;
-//#ifndef HPA_36C
-#if ( MACHINE == HPA_130W)
+
       case 3 :  // SJM 190810 display local sensor value
         if(dOzoneSensoredValue < 99)
           segmentControl( (unsigned int)(dOzoneSensoredValue) );
         else  segmentControl(99);
         break;
-#endif
+
     }
     if (++segmentCycle>STER_INFO_DISP_CYCLE) segmentCycle = 1;
     ledStatus ^= 1;
@@ -1731,15 +1675,13 @@ void handleDestruction()
   }
   
   //time over -> �ö�� Ready
-#ifndef INCLUDE_RETURN_TO_CONTINUOUS_MODE
-  if(destructionTimer <= 0) changeState(STATE_READY_STER,TRUE);
-#else
+
   if(destructionTimer <= 0) {
     if (returnToContinuousOperation)
       continueOperation = TRUE;
     changeState(prevOperation,TRUE);
   }
-#endif
+
   //��ž Ű -> �ö�� Ready
 #ifdef  USE_TNY_1311S_REMOTE
   if ((g_remoteFlag==REMOTE_OK_LONG_FLAG)||(g_remoteFlag==REMOTE_OK_FLAG)||
@@ -1914,11 +1856,7 @@ void handleDisinfectStop()
     printf("\r\n [ STATE_DIS_STOP : %d ]", currentState);
     isFirstEntrance = FALSE;
     RTC_TimeShow();         // SJM 200506 for Debug
-#ifndef VOICE_FIRST
-    //voice play
-    voicePlay(SWITCH_STERILIZATION_STOP, DELAY_STER_STOP);
-    Delay(DELAY_STER_STOP);
-#endif
+
     //LED display
     control_disLed();
     //relay control
@@ -1927,11 +1865,11 @@ void handleDisinfectStop()
     //FND control
     if (continueOperation)  segmentAlphaControl('O', 'n');
     else            segmentControl(disInfo.disTimer / 60);
-#ifdef VOICE_FIRST
+
     //voice play
     voicePlay(SWITCH_STERILIZATION_STOP, DELAY_STER_STOP);
     Delay(DELAY_STER_STOP);
-#endif
+
   }
   
   //blink
@@ -1951,12 +1889,9 @@ void handleDisinfectStop()
   }
   
   //restart
-#ifdef  USE_TNY_1311S_REMOTE
   if ((g_remoteFlag==REMOTE_OK_LONG_FLAG)||(g_remoteFlag==REMOTE_OK_FLAG)||
      (g_remoteFlag==TNY_OK_FLAG)||(g_remoteFlag==TNY_OK_LONG_FLAG)) {
-#else
-  if((g_remoteFlag==REMOTE_OK_LONG_FLAG)||(g_remoteFlag==REMOTE_OK_FLAG)) {
-#endif
+
     g_remoteFlag = 0;
 //    isFirstEntrance = TRUE;
 //    currentState = STATE_DIS;
@@ -2062,10 +1997,9 @@ void handleIon()
     RTC_TimeShow();         // SJM 200506 for Debug
     control_relayAllOff();              // SJM 200506 added because of
                             // transition form continuous mode.
-#ifdef VOICE_FIRST
+
     voicePlay(SWITCH_ION_START, DELAY_ION_START);
     Delay(DELAY_ION_START);
-#endif
     //led control
     control_ionLed();
     //relay control
@@ -2073,10 +2007,7 @@ void handleIon()
     //FND control
     if (continueOperation)  segmentAlphaControl('O', 'n');
     else            segmentControl(ionInfo.ionTimer / 60);
-#ifndef VOICE_FIRST
-    voicePlay(SWITCH_ION_START, DELAY_ION_START);
-    Delay(DELAY_ION_START);
-#endif
+
   }
   
   //blink
@@ -2118,10 +2049,7 @@ void handleIonStop()
     printf("\r\n [ STATE_ION_STOP : %d ]", currentState);
     isFirstEntrance = FALSE;
     RTC_TimeShow();         // SJM 200506 for Debug
-#ifndef VOICE_FIRST
-    voicePlay(SWITCH_ION_STOP, DELAY_ION_STOP);
-    Delay(DELAY_ION_STOP);
-#endif
+
     //led control
     control_ionLed(); 
     //relay control
@@ -2724,7 +2652,7 @@ void handleSetup()
 
 
 void serial_disinfect(struct IotCommandSet *command){
-    printf("\r\n serial_disinfect duration = ", command->duration);
+    printf("\r\n serial_disinfect duration = %s", command->duration);
     control_relayAllOff();
     //LED control
     control_disLed();
@@ -2736,29 +2664,65 @@ void serial_disinfect(struct IotCommandSet *command){
     changeState(STATE_DIS, FALSE);
 }
 
+
 void serial_ion(struct IotCommandSet *command){//cho: 2024-4-15
-    printf("\r\n serial_ion duration = ", command->duration);
+    printf("\r\n serial_ion duration = %s", command->duration);
     control_relayAllOff();
     //LED control
     control_disLed();
     continueOperation = FALSE;
-    disInfo.disTimer = atoi(command->duration) * 60;
-    segmentControl(disInfo.disTimer / 60);
+    ionInfo.ionTimer = atoi(command->duration) * 60;
+    segmentControl(ionInfo.ionTimer / 60);   //kwon bug fix
     voicePlay(SWITCH_ANION_MODE, DELAY_ANION_MODE);
     Delay(DELAY_ANION_MODE);
     changeState(STATE_ION, FALSE);
 }
 
 void serial_plasma(struct IotCommandSet *command){//cho: 2024-4-15
-    printf("\r\n serial_plasma duration = ", command->duration);
-    control_relayAllOff();
-    //LED control
-    control_disLed();
-    continueOperation = FALSE;
-    disInfo.disTimer = atoi(command->duration) * 60;
-    segmentControl(disInfo.disTimer / 60);
+
+    static unsigned char pwrPIDon = 3;
+
+    printf("\r\n serial_plasma duration = %s", command->duration);
+    // control_relayAllOff();
+    // //LED control
+    // control_disLed();
+    // continueOperation = FALSE;
+    // disInfo.disTimer = atoi(command->duration) * 60;
+    // segmentControl(disInfo.disTimer / 60);
+    // voicePlay(SWITCH_PLASMA_MODE, DELAY_PLASMA_MODE);
+    // Delay(DELAY_PLASMA_MODE);
+
+    printf("\r\n [ serial_plasma STATE_READY_STER : %d ]", currentState);
+    
     voicePlay(SWITCH_PLASMA_MODE, DELAY_PLASMA_MODE);
     Delay(DELAY_PLASMA_MODE);
+
+    prevOperation = STATE_READY_STER;   // SJM 200506 debugged 
+    //relay all off
+    control_relayAllOff();
+    // Default setting & LED display
+   
+    plasmaInfo.pidOn = TRUE;
+    plasmaInfo.pwr = MAX_PLASMA_PWR;
+    pwrPIDon = 3;
+    maxDispPower = plasmaInfo.pwr + 2;
+    plasmaInfo.plasmaTimer = 2 * 60;
+  
+  
+    continueOperation = FALSE;
+
+     //kwon:2024-4-10
+    printf("\r\n 1-1. handleReadyPlasmaSter : plasmaInfo.plasmaTimer = %d",plasmaInfo.plasmaTimer );
+    printf("\r\n 1-2. handleReadyPlasmaSter : plasmaInfo.plasmaTimer/600 = %d",plasmaInfo.plasmaTimer/600 );
+    
+    
+    if(plasmaInfo.rsvOn == TRUE) {
+//      printf("select Mode : %d\r\n", plasmaInfo.modeSelect);  SJM 190715 useless??
+      printf("\r\nselect rsvOn : %d\r\n", plasmaInfo.rsvOn);
+      printf("\r\nselect rsvTime : %d\r\n", plasmaInfo.rsvTime);
+//      plasmaInfo.modeSelect = SETTING_NONE;                   SJM 190715 useless??
+    }
+
     changeState(STATE_STER, FALSE);
 }
 
@@ -2769,28 +2733,79 @@ void serial_handler(struct IotCommandSet *command){
   printf("\r\nserial_handler command mode = %s\r\n\r\n", command->mode);
   printf("\r\nserial_handler command wind = %s\r\n\r\n", command->wind);
   printf("\r\nserial_handler command duration  = %s\r\n\r\n", command->duration);
-   
-  if(strcmp(command->mode, "2") == 0) //disinfect mode  //cho: 2024-4-15
+
+ 
+  if(strcmp(command->mode, "1") == 0)//plasma mode  //cho: 2024-4-15
   {
-    printf("\r\rn disinfect mode enter ....");
-    serial_disinfect(command);
+    printf("\r\n plasma mode enter 1....");
+    serial_plasma(command);
+    // strcpy(command->mode, "2");
+    // printf("\r\n disinfect mode enter ....");
+    // serial_disinfect(command);
+    // strcpy(command->mode, "3");
+    // printf("\r\n ion mode enter ....");
+    // serial_ion(command); 
   }
+
+  else if(strcmp(command->mode, "2") == 0) //disinfect mode  //cho: 2024-4-15
+  {
+   
+    
+      printf("\r\n disinfect mode start ....");
+      serial_disinfect(command);
+    
+    
+  }
+
   else if(strcmp(command->mode, "3") == 0)
   {
-    printf("\r\rn ion mode enter ....");
+    printf("\r\n ion mode enter 3....");
     serial_ion(command);
   }
-  else if(strcmp(command->mode, "1") == 0)//plasma mode  //cho: 2024-4-15
-  {
-    printf("\r\n plasma mode enter ....");
-    serial_plasma(command);
-    strcpy(command->mode, "2");
-    printf("\r\n disinfect mode enter ....");
-    serial_disinfect(command);
-    strcpy(command->mode, "3");
-    printf("\r\n ion mode enter ....");
-    serial_ion(command); 
+
+  else if(strcmp(command->mode, "4") == 0){
+    printf("\r\rn power on mode 4....");
   }
+
+  else if(strcmp(command->mode, "5") == 0){
+    printf("\r\rn power off mode 5....");
+
+    //현재의 상태가 Power off 상태가 아니면, power off를 한다.
+    if(currentState != STATE_POWER_OFF){
+      printf("\r\n current state isn't power off");
+        g_remoteFlag = 0;
+        voicePlay(SWITCH_POWER_OFF, DELAY_POWER_OFF);
+        Delay(DELAY_POWER_OFF);
+        
+        //eeprom write 필요.
+        changeState(STATE_POWER_OFF,TRUE);
+    }
+    else{
+      printf("\r\n error: current state is power off");
+    }                                                                                                                                                                                                                                                  
+  }
+
+  else if(strcmp(command->mode, "6") == 0){
+    printf("\r\n stop mode 6....");
+
+    if(currentState == STATE_DIS){
+      printf("\r\n current state is STATE_DIS");
+        g_remoteFlag = 0;
+        //eeprom write 필요.
+        changeState(STATE_DIS_STOP, FALSE);
+    }
+    else if(currentState == STATE_ION){
+      printf("\r\n current state is STATE_ION");
+        g_remoteFlag = 0;
+        //eeprom write 필요.
+        changeState(STATE_ION_STOP, FALSE);
+    }
+    else{
+      printf("\r\n current state error..... ");
+    }
+  }
+    
+
   else //error mode //cho: 2024-4-15
   {
     printf("\r\n mode error ....");

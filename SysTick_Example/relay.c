@@ -82,9 +82,9 @@ void relayControl(unsigned char relay, unsigned char onoff)
     ozoneLampOnFlag = onoff;
     if(onoff == RELAY_ON) GPIOA->BSRRL = GPIO_Pin_2;
     else                  GPIOA->BSRRH = GPIO_Pin_2;
-#ifdef  HUNGARIAN_ISSUE
-    printf("[OzoneLamp=%d]",onoff);
-#endif
+
+    printf("\r\n realy.c : [OzoneLamp=%d]",onoff);
+
     break;
   case RELAY_AC_UV:
     uvLampOnFlag = onoff;
@@ -101,14 +101,14 @@ void relayControl(unsigned char relay, unsigned char onoff)
     if(onoff == RELAY_ON) GPIOB->BSRRL = GPIO_Pin_1;
     else                  GPIOB->BSRRH = GPIO_Pin_1;
 #ifdef  HUNGARIAN_ISSUE
-    printf("[Plate1=%d]",onoff);
+    printf(" relay.c : [Plate1=%d]",onoff);
 #endif
     break;    
   case RELAY_PLASMA2:
     if(onoff == RELAY_ON) GPIOA->BSRRL = GPIO_Pin_0;
     else                  GPIOA->BSRRH = GPIO_Pin_0;
 #ifdef  HUNGARIAN_ISSUE
-    printf("[Plate2=%d]",onoff);
+    printf(" realy.c [Plate2=%d]",onoff);
 #endif
     break;
   case RELAY_SPI:
