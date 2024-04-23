@@ -3,7 +3,7 @@
 #include "eeprom.h"
 
 #ifdef  SJM_DEBUG
-unsigned long ttt1=0,ttt2=50, ttt3=0;
+                                                                                                                                                          unsigned long ttt1=0,ttt2=50, ttt3=0;
 #endif
 extern unsigned char m_data[4];
 
@@ -85,7 +85,10 @@ extern unsigned char fanMode, genMode;
 void command_exec()
 {
     char *opcode=pcommand[0];
-    int value, value2;    
+    int value, value2;  
+
+    uint8_t rxData[50]; // 수신 데이터를 저장할 배열
+
 #ifdef  SJM_DEBUG
     unsigned int endAddr, delay;
 #endif
@@ -339,6 +342,48 @@ void command_exec()
       printf("time!\r\n");
       RTC_TimeShow();  
     }
+
+    // kwon:2024-4-21, AT Command test
+    if(strcmp(opcode, "AT") == 0) {
+      printf("ESP8266 AT command \r\n");
+      
+        uint8_t str[] = "AT\r\n";  
+        USART6_SendString(USART6, (uint8_t *) str);
+
+      // UART6_ReceiveData(rxData, sizeof(rxData)); // ESP8266 모듈로부터 응답 수신
+      // printf("rx at command response= %s", rxData);
+    }
+
+    if(strcmp(opcode, "ATRST") == 0) {
+      printf("ESP8266 AT+RST command \r\n");
+      
+        uint8_t str[] = "AT+RST\r\n";  
+        USART6_SendString(USART6, (uint8_t *) str);
+
+      // UART6_ReceiveData(rxData, sizeof(rxData)); // ESP8266 모듈로부터 응답 수신
+      // printf("rx at command response= %s", rxData);
+    }
+
+    if(strcmp(opcode, "ATGMR") == 0) {
+      printf("ESP8266 AT+GMR command \r\n");
+      
+        uint8_t str[] = "AT+GMR\r\n";  
+        USART6_SendString(USART6, (uint8_t *) str);
+
+      // UART6_ReceiveData(rxData, sizeof(rxData)); // ESP8266 모듈로부터 응답 수신
+      // printf("rx at command response= %s", rxData);
+    }
+
+    if(strcmp(opcode, "ATCWMODE") == 0) {
+      printf("ESP8266 AT+CWMODE=? command \r\n");
+      
+        uint8_t str[] = "AT+CWMODE=?\r\n";  
+        USART6_SendString(USART6, (uint8_t *) str);
+
+      // UART6_ReceiveData(rxData, sizeof(rxData)); // ESP8266 모듈로부터 응답 수신
+      // printf("rx at command response= %s", rxData);
+    }
+
     if(strcmp(opcode, "copytime") == 0)  copyTime();  
     if(strcmp(opcode, "date") == 0) {
       printf("date!\r\n");
@@ -375,7 +420,7 @@ void command_exec()
       sysConfig.rciOperatingMin = value;
       systemWrite();
     }
-    
+
     if(strcmp(opcode, "consume") == 0) {
 //      systemRead();
       printf("Filter    : %d:%02d\r\n", sysConfig.filterCountMin/60, sysConfig.filterCountMin%60);
@@ -449,8 +494,8 @@ void GetUARTData()
                     command_analysis();
                 } 
                 command_str_idx = 0;
-                printf("\r\n=> test ");
-            }
+                // printf("\r\n=> test ");
+            } 
         }
         else {
             if (ch==0x8) {

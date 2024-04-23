@@ -251,7 +251,7 @@ void ozoneSensorInit()
 }
 
 /**
-  * 1ms¸¶´Ù ¹ß»ıµÇ´Â Timer ÀÎÅÍ·´Æ®¸¦ À§ÇÑ ÇÔ¼ö.
+  * 1msï¿½ï¿½ï¿½ï¿½ ï¿½ß»ï¿½ï¿½Ç´ï¿½ Timer ï¿½ï¿½ï¿½Í·ï¿½Æ®ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ô¼ï¿½.
   */
 void TIM_Config(void)
 { 
@@ -298,7 +298,7 @@ void TIM_Config(void)
 }
 
 /**
-  * Debugging(COM3) Æ÷Æ®¸¦ À§ÇÑ ÃÊ±â ÇÔ¼ö.
+  * Debugging(COM3) ï¿½ï¿½Æ®ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ê±ï¿½ ï¿½Ô¼ï¿½.
   */
 void Com_init(USART_InitTypeDef* USART_InitStruct)
 {
@@ -336,7 +336,7 @@ void Com_init(USART_InitTypeDef* USART_InitStruct)
 }
 
 /**
-  * UART3ÀÇ ÀÎÅÍ·´Æ® ¹× Æ÷Æ® ¼³Á¤À» À§ÇÑ ÇÔ¼ö.
+  * UART3ï¿½ï¿½ ï¿½ï¿½ï¿½Í·ï¿½Æ® ï¿½ï¿½ ï¿½ï¿½Æ® ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ô¼ï¿½.
   */
 void Uart_init()
 {
@@ -407,7 +407,7 @@ void Com6_init(USART_InitTypeDef* USART_InitStruct)
 }
 
 /**
-  * UART6ÀÇ ÀÎÅÍ·´Æ® ¹× Æ÷Æ® ¼³Á¤À» À§ÇÑ ÇÔ¼ö.
+  * UART6ï¿½ï¿½ ï¿½ï¿½ï¿½Í·ï¿½Æ® ï¿½ï¿½ ï¿½ï¿½Æ® ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ô¼ï¿½.
   */
 void Uart6_init()
 {
@@ -424,7 +424,8 @@ void Uart6_init()
   NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
   NVIC_Init(&NVIC_InitStructure);
   
-  USART_InitStructure.USART_BaudRate = 115200;
+  // USART_InitStructure.USART_BaudRate = 115200;
+  USART_InitStructure.USART_BaudRate = 9600;
   USART_InitStructure.USART_WordLength = USART_WordLength_8b;
   USART_InitStructure.USART_StopBits = USART_StopBits_1;
   USART_InitStructure.USART_Parity = USART_Parity_No;
@@ -435,7 +436,8 @@ void Uart6_init()
   
   printf("\nUart6 ITConfig .....");
 
-  USART_ITConfig(USART6, USART_IT_RXNE, ENABLE);
+// kwon: 2024-4-21 ì„ì‹œ í…ŒìŠ¤íŠ¸ ì¸í„°ëŸ½í„°ë¥¼ ë§‰ì•˜ë‹¤.
+   USART_ITConfig(USART6, USART_IT_RXNE, ENABLE);
 }
 
 

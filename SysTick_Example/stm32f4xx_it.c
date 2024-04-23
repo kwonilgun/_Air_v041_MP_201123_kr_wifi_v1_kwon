@@ -586,7 +586,10 @@ void process_received_data(char *data, int length) {
 void USART6_IRQHandler(void) {
     if(USART_GetITStatus(USART6, USART_IT_RXNE) != RESET) {
         char received_char = USART_ReceiveData(USART6);
+
+         printf("%c", received_char);
        
+         /*
         if(received_char == '[') {
             //rx string 시작
             string_started = 1;
@@ -603,6 +606,10 @@ void USART6_IRQHandler(void) {
                 rx_head = 0;
             rx_buffer[rx_head] = '\0';
         }
+        else{
+           printf("\r\n Irx = %x", received_char);
+        }
+*/
 
         USART_ClearITPendingBit(USART6, USART_IT_RXNE);
     }

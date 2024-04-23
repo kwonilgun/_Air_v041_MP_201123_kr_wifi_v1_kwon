@@ -38,4 +38,10 @@ extern unsigned long ISD1760_readStatus (void);
 extern void settingMainMenu(void);
 
 extern void changeState(unsigned char state, unsigned char write);
+
+
+// kwon:2024-4-21
+extern void USART6_SendString(USART_TypeDef* USARTx, uint8_t* string);
+extern void UART6_ReceiveData(uint8_t *data, uint16_t size);
+
 #endif //__SHELL_H

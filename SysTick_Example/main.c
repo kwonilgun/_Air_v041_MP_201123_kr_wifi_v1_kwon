@@ -118,6 +118,20 @@ void UART3_Write(char c) {
     USART3->DR = c; // ���� ����
 }
 
+void UART6_ReceiveData(uint8_t *data, uint16_t size) {
+    
+    printf("UART6_ReceiveData enter \r\n");
+    for (uint16_t i = 0; i < size; i++) {
+         while (!(USART6->SR & USART_SR_RXNE)); // Wait until data is received
+        Delay(10);
+        
+        data[i] = USART6->DR; // Read received data
+        printf("uart6 received %s\r\n",data);
+    }
+
+  
+}
+
 // ���� �������� �����͸� ����ϴ� �Լ�
 void printBinary(uint8_t data) {
     for (int i = 7; i >= 0; i--) {
@@ -135,25 +149,28 @@ void printBinary(uint8_t data) {
 void USART6_SendString(USART_TypeDef* USARTx, uint8_t* string)
 {
   
-   printf("\r\n USART6_SendString ");
+   printf("\r\n USART6_SendString tx= ");
     while (*string)
     {
         // Wait until transmit data register is empty
-//       printf("\r\n data sent  before");
-//       printf("\r\n  char = %c", *string);
+      // printf("\r\n data sent  before");
+      printf("%c", *string);
+      // printf("\r\n  send char hex = %x", *string);
 
 
         // Send a character to usart6
       USART_SendData(USARTx, *string & 0xff) ;
+      // Delay(10);
 
        while (USART_GetFlagStatus(USART6, USART_FLAG_TC) == RESET) {}
         string++;
 
         
-//        printf("\r\n data sent success");
+      //  printf("\r\n data sent success\r\n");
 
         
     }
+    printf("\r\n");
 }
 
 void USART6_Transmit(uint8_t data) {
