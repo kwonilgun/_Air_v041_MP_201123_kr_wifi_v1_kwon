@@ -28,4 +28,15 @@ void Uart6_init();
 void ozoneSensorInit();
 //double getOzoneSensor();
 
+// kwon: 2024-4-25, uart6 rx int for esp8226
+#define MAX_ESP_RX_BUFFER      1024
+#define MAX_ESP_COMMAND_LEN    64
+#define MAX_ESP_CLIENT_NUM     10
+
+typedef struct _cb_data_t
+{
+    uint8_t buf[MAX_ESP_RX_BUFFER];
+    uint16_t length;
+}cb_data_t;
+
 #endif /* __PERIPHERAL_H */

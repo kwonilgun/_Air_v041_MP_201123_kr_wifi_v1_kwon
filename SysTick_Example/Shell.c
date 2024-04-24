@@ -365,7 +365,7 @@ void command_exec()
     }
 
     if(strcmp(opcode, "ATGMR") == 0) {
-      printf("ESP8266 AT+GMR command \r\n");
+      printf("ESP8266 AT+GMR commandzzzzz \r\n");
       
         uint8_t str[] = "AT+GMR\r\n";  
         USART6_SendString(USART6, (uint8_t *) str);
