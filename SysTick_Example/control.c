@@ -44,7 +44,7 @@ void reduceOzoneLevel()
 //�ö�� ���
 void control_sterOn()
 {  
-#ifdef  HUNGARIAN_ISSUE
+
   static unsigned char plate = 0;
   
   if (plasmaInfo.pidOn) {
@@ -70,33 +70,10 @@ void control_sterOn()
     }
   }
   relayControl(RELAY_AC_FAN1, RELAY_ON);          //FAN1  
-  #if (MACHINE==HPA_130W)
   relayControl(RELAY_AC_FAN2, RELAY_ON);          //FAN2
   relayControl(RELAY_AC_UV, RELAY_OFF);     //UV Lamp
-  #endif
-#else // HUNGARIAN_ISSUE
-  switch (plasmaInfo.pwr) {                       // SJM 190808 fall-through
-  //#ifndef HPA_36C
-  #if ( MACHINE == HPA_130W)
-    case 3 :  relayControl(RELAY_PLASMA2, RELAY_ON);         //PLASMA2
-    case 2 :  relayControl(RELAY_PLASMA, RELAY_ON);          //PLASMA1
-    case 1 :  relayControl(RELAY_OZONE_LAMP, RELAY_ON);      //OZONE Lamp
-  //#else
-  #elif ( MACHINE == HPA_36C)
-    #ifndef SAFETY_TEST
-    case 2 :  relayControl(RELAY_PLASMA2, RELAY_ON);         //PLASMA2
-    case 1 :  relayControl(RELAY_PLASMA, RELAY_ON);          //PLASMA1
-    #endif
-  #endif
-        break;
-  }
-  relayControl(RELAY_AC_FAN1, RELAY_ON);          //FAN1  
-//  #ifndef HPA_36C
-  #if ( MACHINE == HPA_130W)
-  relayControl(RELAY_AC_FAN2, RELAY_ON);          //FAN2
-  relayControl(RELAY_AC_UV, RELAY_OFF);     //UV Lamp
-  #endif  // HPA_36C
-#endif	// HUNGARIAN_ISSUE
+  
+
 }
 
 void control_sterOff()

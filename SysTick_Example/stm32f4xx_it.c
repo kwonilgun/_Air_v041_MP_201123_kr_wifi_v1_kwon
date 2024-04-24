@@ -290,9 +290,8 @@ void TIM2_IRQHandler(void)
         }
       }
     }
-//    else if( (getPirPort1() == FALSE) && (getPirPort2() == FALSE) ) {
     else {
-//      if (--pidCheckCount<=0) {
+
         pidCheckCount = 0;
         pidDetect = FALSE;
         if(pidDetectedStart == TRUE) {
@@ -301,7 +300,7 @@ void TIM2_IRQHandler(void)
             pidOnTime = 0;
           } 
         }
-//      }
+
     }
   }
 
@@ -533,22 +532,13 @@ void USART3_IRQHandler(void)
    }
 }
 
-//void USART6_IRQHandler(void)
-//{
-//  printf("uart6 int");
-//  if(USART_GetITStatus(USART6, USART_IT_RXNE)!=RESET) { // && setRTCFlag == FALSE) { 
-//    rx_buffer[rx_head] = USART_ReceiveData(USART6);
-//    printf("receive : %c\r\n", rx_buffer[rx_head]);
-//    if(++rx_head>=MAX_RX_BUFFER) 
-//      rx_head = 0;   
-//     USART_ClearITPendingBit(USART6,USART_IT_RXNE);
-//   }
-//}
 
+// uart6 정의
 
-volatile int string_started = 0;
-
+volatile int string_started_6 = 0;
+volatile int rx_head_6 = 0;
 struct SwitchInfo switchInfo ={"",""};
+unsigned char rx_buffer_6[MAX_ESP_RX_BUFFER];
 
 // kwon: 2024-4-24 , esp8226 
 //static cb_data_t cb_data;
@@ -563,20 +553,18 @@ void parseSwitchInfo(const char *input, struct SwitchInfo *info) {
     //
     char *endBracket = strrchr(trimmedInput, '}');
     
-    printf("endBracket = %s \r\n" ,  endBracket);
+    // printf("endBracket = %s \r\n" ,  endBracket);
     
     if (endBracket != NULL)
         *endBracket = '\0'; // 
 
-    
-
     // 
      char *token = strtok(trimmedInput, ":");
-     printf("token = %s \r\n", token );
+    //  printf("token = %s \r\n", token );
      strcpy(info->switchType, token);
      
      token = strtok(NULL, ":");
-     printf("token = %s \r\n", token );
+    //  printf("token = %s \r\n", token );
      strcpy(info->switchState, token);
      
 
@@ -585,7 +573,7 @@ void parseSwitchInfo(const char *input, struct SwitchInfo *info) {
 
 void process_received_data(char *data, int length) {
 
-    printf("\r\nReceived string: %s\r\n", data);
+    // printf("\r\nReceived string: %s\r\n", data);
     parseSwitchInfo(data, &switchInfo);
 }
 
@@ -595,41 +583,23 @@ void USART6_IRQHandler(void) {
         char received_char = USART_ReceiveData(USART6);
 
         printf("%c", received_char);
-        
-     // 일반적인 문자열 수신 중인 경우, 버퍼에 저장
-//        if(!string_started) {
-//            // 새로운 문자열이 시작된 경우
-//            string_started = 1;
-//            rx_head = 0;
-//            rx_buffer[rx_head++] = received_char;
-//        } else {
-//            // 이미 문자열이 시작된 경우
-//            rx_buffer[rx_head++] = received_char;
-//            if(rx_head >= MAX_ESP_RX_BUFFER)
-//                rx_head = 0;
-//        }
-     
          
         if(received_char == '[') {
             //rx string 시작
-            string_started = 1;
-            rx_head = 0;
-            rx_buffer[rx_head] = '\0';
-        } else if(received_char == ']' && string_started) {
+            string_started_6 = 1;
+            rx_head_6 = 0;
+            rx_buffer_6[rx_head_6] = '\0';
+        } else if(received_char == ']' && string_started_6) {
            //rx string 끝
-            string_started = 0;            
-            process_received_data((char *)rx_buffer, rx_head);
-        } else if(string_started) {
+            string_started_6 = 0;            
+            process_received_data((char *)rx_buffer_6, rx_head_6);
+        } else if(string_started_6) {
             
-            rx_buffer[rx_head++] = received_char;
-            if(rx_head >= MAX_RX_BUFFER)
-                rx_head = 0;
-            rx_buffer[rx_head] = '\0';
+            rx_buffer_6[rx_head_6++] = received_char;
+            if(rx_head_6 >= MAX_ESP_RX_BUFFER)
+                rx_head_6 = 0;
+            rx_buffer_6[rx_head_6] = '\0';
         }
-        else{
-           printf("\r\n Irx = %x", received_char);
-        }
-
 
         USART_ClearITPendingBit(USART6, USART_IT_RXNE);
     }

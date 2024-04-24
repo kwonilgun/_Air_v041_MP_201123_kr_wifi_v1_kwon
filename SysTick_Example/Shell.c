@@ -151,31 +151,7 @@ void command_exec()
       printf("\r\n [S/W state = %d %d %d, DIP1 = %d\r\n",sw1,sw2,sw3, statusDIP1);
     }
 #endif
-#ifdef  LPP_V1_00_BD
-    else if (strcmp(opcode,"getBat")==0) {
-      sw1 = GPIO_ReadInputDataBit(GPIOD,GPIO_Pin_3);
-      printf("\r\n [Bat installed = %d]\r\n",sw1);
-    }
-  #ifdef  INCLUDE_CHARGE_CONTROL
-    else if (strcmp(opcode,"setBat")==0) {
-      value = CheckValue(pcommand[1]);
-      if ((value==0)||(value==1)) {
-        if (value==1) {
-          GPIO_WriteBit(GPIOD,GPIO_Pin_4,Bit_RESET);
-          printf("\r\n RESET!!");
-        }
-        else {
-          GPIO_WriteBit(GPIOD,GPIO_Pin_4,Bit_SET);
-          printf("\r\n SET!!");
-        }
-        chargeControl = value;
-        printf(" [setBat = %d]\r\n",value);
-      }
-      else
-        printf("\r\n [Usage] setBat 0/1\r\n");
-    }
-  #endif  // INCLUDE_CHARGE_CONTROL
-#endif  // LPP_V1_00_BD
+
     if (strcmp(opcode,"eetest")==0) {	
       printf("eeprom test\r\n");
       value = CheckValue(pcommand[1]);
@@ -343,6 +319,8 @@ void command_exec()
       RTC_TimeShow();  
     }
 
+//========= ESP 8266 test code ==============================    
+
     // kwon:2024-4-21, AT Command test
     if(strcmp(opcode, "AT") == 0) {
       printf("ESP8266 AT command \r\n");
@@ -475,6 +453,8 @@ void command_analysis()
         command_exec();
     }
 }
+
+
 
 void GetUARTData()
 {

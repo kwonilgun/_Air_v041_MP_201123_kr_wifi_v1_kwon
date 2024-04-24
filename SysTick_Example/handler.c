@@ -1122,8 +1122,6 @@ void handleReadyPlasmaSter()
 //    ledControl(LED_PID_FONT, plasmaInfo.pidOn);
     switch (editMode) {
       case 0 :  // Time Adjust
-//#ifndef HPA_36C
-
         switch (plasmaInfo.pwr) {
           case 1 :
             ledControl(LED_POWER_FONT, LED_ON);
@@ -1145,14 +1143,16 @@ void handleReadyPlasmaSter()
         if (continueOperation)  segmentAlphaControl('O','n');
 
         else {
-          printf("\r\n 1-3. handleReadyPlasmaSter : plasmaInfo.plasmaTimer/600 = %d",plasmaInfo.plasmaTimer/600 );
+
+          // kwon: 2024-4-24, normal 상태에서 여기로 들어온다.
+          // printf("\r\n 1-3. handleReadyPlasmaSter : plasmaInfo.plasmaTimer/600 = %d",plasmaInfo.plasmaTimer/600 );
+          
           segmentControl(plasmaInfo.plasmaTimer/600);
           
         }
   
         break;
       case 1 :  // Intensity Adjust
-
 
         ledControl(LED_POWER_FONT, ledStatus);
         ledControl(LED_POWER_ON, ledStatus);
@@ -1683,12 +1683,9 @@ void handleDestruction()
   }
 
   //��ž Ű -> �ö�� Ready
-#ifdef  USE_TNY_1311S_REMOTE
   if ((g_remoteFlag==REMOTE_OK_LONG_FLAG)||(g_remoteFlag==REMOTE_OK_FLAG)||
      (g_remoteFlag==TNY_OK_FLAG)||(g_remoteFlag==TNY_OK_LONG_FLAG)) {
-#else
-  if((g_remoteFlag==REMOTE_OK_LONG_FLAG)||(g_remoteFlag==REMOTE_OK_FLAG)) {
-#endif
+
     g_remoteFlag = 0;
     control_relayAllOff();
     //voice Play(����� �ߴ� ��)
@@ -2706,7 +2703,8 @@ void serial_plasma(struct IotCommandSet *command){//cho: 2024-4-15
     plasmaInfo.pwr = MAX_PLASMA_PWR;
     pwrPIDon = 3;
     maxDispPower = plasmaInfo.pwr + 2;
-    plasmaInfo.plasmaTimer = 2 * 60;
+    // plasmaInfo.plasmaTimer = 2 * 60;
+    plasmaInfo.plasmaTimer = atoi(command->duration) * 60;
   
   
     continueOperation = FALSE;
@@ -2729,10 +2727,10 @@ void serial_plasma(struct IotCommandSet *command){//cho: 2024-4-15
 void serial_handler(struct IotCommandSet *command){
 
   printf("\r\n\r\n******** serial_handler start ***************\r\n"); 
-  printf("\r\nserial_handler command power = %s\r\n", command->power); 
-  printf("\r\nserial_handler command mode = %s\r\n\r\n", command->mode);
-  printf("\r\nserial_handler command wind = %s\r\n\r\n", command->wind);
-  printf("\r\nserial_handler command duration  = %s\r\n\r\n", command->duration);
+  printf("\r\n serial_handler command power = %s", command->power); 
+  printf("\r\n serial_handler command mode = %s", command->mode);
+  printf("\r\n serial_handler command wind = %s", command->wind);
+  printf("\r\n serial_handler command duration  = %s\r\n", command->duration);
 
  
   if(strcmp(command->mode, "1") == 0)//plasma mode  //cho: 2024-4-15
@@ -2764,11 +2762,11 @@ void serial_handler(struct IotCommandSet *command){
   }
 
   else if(strcmp(command->mode, "4") == 0){
-    printf("\r\rn power on mode 4....");
+    printf("\r\n power on mode 4....");
   }
 
   else if(strcmp(command->mode, "5") == 0){
-    printf("\r\rn power off mode 5....");
+    printf("\r\n power off mode 5....");
 
     //현재의 상태가 Power off 상태가 아니면, power off를 한다.
     if(currentState != STATE_POWER_OFF){
@@ -2782,7 +2780,7 @@ void serial_handler(struct IotCommandSet *command){
     }
     else{
       printf("\r\n error: current state is power off");
-    }                                                                                                                                                                                                                                                  
+    }                                                                                                                                                                       
   }
 
   else if(strcmp(command->mode, "6") == 0){
@@ -2799,6 +2797,23 @@ void serial_handler(struct IotCommandSet *command){
         g_remoteFlag = 0;
         //eeprom write 필요.
         changeState(STATE_ION_STOP, FALSE);
+    }
+    else if(currentState == STATE_STER){
+      printf("\r\n current state is STATE_STER");
+        g_remoteFlag = 0;
+        //eeprom write 필요.
+        changeState(STATE_STER_STOP, FALSE);
+    }
+     else if(currentState == STATE_DESTRUCTION){
+      printf("\r\n current state is STATE_DESTRUCTION");
+      g_remoteFlag = 0;
+      control_relayAllOff();
+      //voice Play
+      voicePlay(SWITCH_DESTRUCTION_STOP, DELAY_DESTRUCTION_STOP);
+      Delay(DELAY_DESTRUCTION_STOP);
+      //eeprom write 필요.
+      changeState(STATE_READY_STER,TRUE);
+        
     }
     else{
       printf("\r\n current state error..... ");
