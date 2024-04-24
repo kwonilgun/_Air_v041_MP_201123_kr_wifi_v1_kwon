@@ -424,8 +424,11 @@ void Uart6_init()
   NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
   NVIC_Init(&NVIC_InitStructure);
   
-  // USART_InitStructure.USART_BaudRate = 115200;
-  USART_InitStructure.USART_BaudRate = 9600;
+  // kwon: rasperry는 115200 속도
+  USART_InitStructure.USART_BaudRate = 115200;
+
+  // kwon: esp8266은 96000 
+  // USART_InitStructure.USART_BaudRate = 9600;
   USART_InitStructure.USART_WordLength = USART_WordLength_8b;
   USART_InitStructure.USART_StopBits = USART_StopBits_1;
   USART_InitStructure.USART_Parity = USART_Parity_No;

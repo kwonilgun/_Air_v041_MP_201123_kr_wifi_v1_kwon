@@ -550,6 +550,12 @@ volatile int string_started = 0;
 
 struct SwitchInfo switchInfo ={"",""};
 
+// kwon: 2024-4-24 , esp8226 
+//static cb_data_t cb_data;
+//int rx_head = 0; // 버퍼의 현재 위치
+//int string_started = 0; // 수신된 문자열의 시작 여부
+
+
 void parseSwitchInfo(const char *input, struct SwitchInfo *info) {
     // 
     char *trimmedInput = strdup(input + 1); // 
@@ -585,11 +591,25 @@ void process_received_data(char *data, int length) {
 
 void USART6_IRQHandler(void) {
     if(USART_GetITStatus(USART6, USART_IT_RXNE) != RESET) {
+      
         char received_char = USART_ReceiveData(USART6);
 
-         printf("%c", received_char);
-       
-         /*
+        printf("%c", received_char);
+        
+     // 일반적인 문자열 수신 중인 경우, 버퍼에 저장
+//        if(!string_started) {
+//            // 새로운 문자열이 시작된 경우
+//            string_started = 1;
+//            rx_head = 0;
+//            rx_buffer[rx_head++] = received_char;
+//        } else {
+//            // 이미 문자열이 시작된 경우
+//            rx_buffer[rx_head++] = received_char;
+//            if(rx_head >= MAX_ESP_RX_BUFFER)
+//                rx_head = 0;
+//        }
+     
+         
         if(received_char == '[') {
             //rx string 시작
             string_started = 1;
@@ -609,7 +629,7 @@ void USART6_IRQHandler(void) {
         else{
            printf("\r\n Irx = %x", received_char);
         }
-*/
+
 
         USART_ClearITPendingBit(USART6, USART_IT_RXNE);
     }
