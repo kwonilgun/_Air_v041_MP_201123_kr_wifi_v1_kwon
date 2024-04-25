@@ -387,7 +387,10 @@ int main(void)
   while (1) {
     
     IWDG_ReloadCounter();
+    
+    //uart3 입력을 처리한다. shell.c에서 입력된 데이타를 사용한다.
     GetUARTData();
+
     handler();
 
     if (g_keyFlag) {
@@ -406,10 +409,10 @@ int main(void)
       //GPIOA->ODR ^= GPIO_Pin_14;
     }
 
-    //kwon :2024-4-9 , serial port 6로 들어온 코맨드를 처리, 실시간 처리 필요. 
+    //kwon :2024-4-9 ,uart6로 들어온 명령을 처리 
     serial_input_cmd_handler();
     
-    // kwon : 2023-4-15, seral port6 command hander 
+    // kwon : 2023-4-15, uart6 command hander 
     if(strlen(iotCommandSet.start) > 0){
 
       printf("\r\n\r\n<<......serial command start ....>>");
