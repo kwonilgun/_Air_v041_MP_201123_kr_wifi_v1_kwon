@@ -350,7 +350,7 @@ int main(void)
 
   printf("\r\n  Wall Type  : HPA-130W\r\n");
 
-  printf("\r\n  kwonilgun :version: 2024-4-13 \r\n");
+  printf("\r\n  kwonilgun :version: 2024-4-30-test-wa \r\n");
 
   printf("\r\n   Ver %d (Language:%d)\r\n", SW_VERSION,LANGUAGE);
   printf("\r\n  HealthWell Medical Inc. 0401-01 \r\n");

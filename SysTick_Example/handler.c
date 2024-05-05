@@ -1466,11 +1466,14 @@ void handlePlasmaSter()
   
     if (plasmaInfo.pidOn) {
      
-      printf("\r\n kwon: plasmaInfo.pidOn = %c", plasmaInfo.pidOn);
+      // printf("\r\n kwon: plasmaInfo.pidOn = %d", plasmaInfo.pidOn);
 
       normalPlasmaSter();
     }
     else {
+
+      // printf("\r\n kwon: plasmaInfo.pidOn = %d", plasmaInfo.pidOn);
+
       // SJM 190809 check if ozone level exceeds the limit
       if( (g_RemoteOzoneSensorValue > OZONE_RISK_LEVEL) || (dOzoneSensoredValue > OZONE_RISK_LEVEL) ) {
         reduceOzoneLevel();         // SJM 190809 add to immediate action to reduce ozone level
@@ -2680,14 +2683,7 @@ void serial_plasma(struct IotCommandSet *command){//cho: 2024-4-15
     static unsigned char pwrPIDon = 3;
 
     printf("\r\n serial_plasma duration = %s", command->duration);
-    // control_relayAllOff();
-    // //LED control
-    // control_disLed();
-    // continueOperation = FALSE;
-    // disInfo.disTimer = atoi(command->duration) * 60;
-    // segmentControl(disInfo.disTimer / 60);
-    // voicePlay(SWITCH_PLASMA_MODE, DELAY_PLASMA_MODE);
-    // Delay(DELAY_PLASMA_MODE);
+    
 
     printf("\r\n [ serial_plasma STATE_READY_STER : %d ]", currentState);
     
@@ -2699,7 +2695,10 @@ void serial_plasma(struct IotCommandSet *command){//cho: 2024-4-15
     control_relayAllOff();
     // Default setting & LED display
    
-    plasmaInfo.pidOn = TRUE;
+    //2024-5-5 : 인체감지 모드를 OFF, 플라즈마 모드 강제 동작시킴
+    plasmaInfo.pidOn = FALSE;
+
+
     plasmaInfo.pwr = MAX_PLASMA_PWR;
     pwrPIDon = 3;
     maxDispPower = plasmaInfo.pwr + 2;
@@ -2710,8 +2709,8 @@ void serial_plasma(struct IotCommandSet *command){//cho: 2024-4-15
     continueOperation = FALSE;
 
      //kwon:2024-4-10
-    printf("\r\n 1-1. handleReadyPlasmaSter : plasmaInfo.plasmaTimer = %d",plasmaInfo.plasmaTimer );
-    printf("\r\n 1-2. handleReadyPlasmaSter : plasmaInfo.plasmaTimer/600 = %d",plasmaInfo.plasmaTimer/600 );
+    printf("\r\n 1-1. serial_plasma : plasmaInfo.plasmaTimer = %d",plasmaInfo.plasmaTimer );
+    printf("\r\n 1-2. serial_plasma : plasmaInfo.plasmaTimer/600 = %d",plasmaInfo.plasmaTimer/600 );
     
     
     if(plasmaInfo.rsvOn == TRUE) {
