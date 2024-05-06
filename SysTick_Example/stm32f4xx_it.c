@@ -370,18 +370,18 @@ void TIM2_IRQHandler(void)
   }       // end of (currentState == STATE_PREPARE)
 
   //�� ���� �ð� ī��Ʈ �� ����, ����, ī����
-//  if(currentState == STATE_STER || currentState == STATE_DIS ||  currentState == STATE_ION) {
-    if(++plusCounterMin >= ONESEC * 60) { //minite
-      plusCounterMin = 0;
-      if (fan2OnFlag)       sysConfig.filterCountMin++;     // SJM 190723 Fan1&2 run at the same time.
-      if (rciOnFlag)        sysConfig.rciOperatingMin++;
-//#ifndef HPA_36C  // SJM 200413 No UV-Lamp and Ozpne-Lamp in HPA_36C
+
+  if(++plusCounterMin >= ONESEC * 60) { //minite
+    plusCounterMin = 0;
+    if (fan2OnFlag)       sysConfig.filterCountMin++;     // SJM 190723 Fan1&2 run at the same time.
+    if (rciOnFlag)        sysConfig.rciOperatingMin++;
+
 #if ( MACHINE == HPA_130W)
-      if (uvLampOnFlag)     sysConfig.uvLampCountMin++;
-      if (ozoneLampOnFlag)  sysConfig.ozoneLampCountMin++;
+    if (uvLampOnFlag)     sysConfig.uvLampCountMin++;
+    if (ozoneLampOnFlag)  sysConfig.ozoneLampCountMin++;
 #endif
-    }
-//  }   // end of "Time Count"
+  }
+
 
   //plasma mode Interrupt
   if((currentState == STATE_STER) || (currentState == STATE_READY_STER) || (currentState == STATE_STER_STOP)) {
@@ -399,6 +399,7 @@ void TIM2_IRQHandler(void)
           if(++(plasmaBlinkOnTimer) >= plasmaOnTime) {
 #endif
             // SJM 200506 add '='
+            printf("\n\r it.c plasmaOnTime->");
             plasmaBlinkOnTimer = 0;
             plasmaBlinkOnFlag = TRUE;
             plasmaBlinkOffFlag = FALSE;
@@ -412,6 +413,7 @@ void TIM2_IRQHandler(void)
           if(++(plasmaBlinkOffTimer) >= plasmaOffTime) {
 #endif
             // SJM 200506 add '='
+            printf("\n\r it.c plasmaOffTime->");
             plasmaBlinkOffTimer = 0;
             plasmaBlinkOnFlag = FALSE;
             plasmaBlinkOffFlag = TRUE;

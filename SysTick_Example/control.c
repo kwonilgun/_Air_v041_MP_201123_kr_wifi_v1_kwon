@@ -102,32 +102,31 @@ void normalPlasmaSter()
 {
 
       if (plasmaBlinkOnFlag == TRUE) {
-  #ifdef OZONE_TIME_TEST
+ 
         if ((plasmaInfo.pidOn==TRUE)&&(plasmaInfo.pwr==MAX_PLASMA_PWR)) {
           control_sterOn();
           //relayControl(RELAY_OZONE_LAMP, RELAY_OFF);       //OZONE Lamp
-          RTC_TimeShow();
-          printf(" Plasma --> Still ON : %0.2d:%0.2d:%0.2d \n\r", RTC_TimeStructure.RTC_Hours, RTC_TimeStructure.RTC_Minutes, RTC_TimeStructure.RTC_Seconds);          
+          // RTC_TimeShow();
+          printf("\n\r\n\r control.c : Plasma --> Still ON : %0.2d:%0.2d:%0.2d \n\r", RTC_TimeStructure.RTC_Hours, RTC_TimeStructure.RTC_Minutes, RTC_TimeStructure.RTC_Seconds);          
         }
         else {
           control_sterOff();
           //relayControl(RELAY_OZONE_LAMP, RELAY_OFF);       //OZONE Lamp
-          RTC_TimeShow();
-          printf(" Plasma --> OFF : %0.2d:%0.2d:%0.2d \n\r", RTC_TimeStructure.RTC_Hours, RTC_TimeStructure.RTC_Minutes, RTC_TimeStructure.RTC_Seconds);          
+          // RTC_TimeShow();
+
+          printf("\n\r\n\r control.c Plasma --> OFF : %0.2d:%0.2d:%0.2d \n\r", RTC_TimeStructure.RTC_Hours, RTC_TimeStructure.RTC_Minutes, RTC_TimeStructure.RTC_Seconds);          
         }
-  #else        
-        control_sterOff();
-        //relayControl(RELAY_OZONE_LAMP, RELAY_OFF);       //OZONE Lamp
-        RTC_TimeShow();
-        printf(" Plasma --> OFF : %0.2d:%0.2d:%0.2d \n\r", RTC_TimeStructure.RTC_Hours, RTC_TimeStructure.RTC_Minutes, RTC_TimeStructure.RTC_Seconds);          
-  #endif
+
+        //kwon: 2024-5-6, timer int에서 이 값이 변경된다. 주기적으로 50초, 10초 간격 진행, plasmaInfo.pidOn가 true인경우는 계속해서 플라즈마가 켜진 상태로 진행이 된다. 
+
         plasmaBlinkOnFlag = FALSE;
       }
       if (plasmaBlinkOffFlag == TRUE) {
+        printf("\n\r");
         control_sterOn();
         plasmaBlinkOffFlag = FALSE;
-        RTC_TimeShow();
-        printf(" Plasma --> ON : %0.2d:%0.2d:%0.2d \n\r", RTC_TimeStructure.RTC_Hours, RTC_TimeStructure.RTC_Minutes, RTC_TimeStructure.RTC_Seconds);
+        // RTC_TimeShow();
+        printf("\n\r\n\r control.c Plasma --> ON : %0.2d:%0.2d:%0.2d \n\r", RTC_TimeStructure.RTC_Hours, RTC_TimeStructure.RTC_Minutes, RTC_TimeStructure.RTC_Seconds);
       }
 
 }

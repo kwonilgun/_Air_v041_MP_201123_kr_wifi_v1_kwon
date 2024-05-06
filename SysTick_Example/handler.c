@@ -1493,6 +1493,7 @@ void handlePlasmaSter()
       // SJM 190809 or ozone level is in safe range ==> Normal Operation
       else if ((g_RemoteOzoneSensorValue<=OZONE_SAFE_LEVEL)&&(dOzoneSensoredValue<=OZONE_SAFE_LEVEL) ) {
         ozoneRangeOver = 0;
+        // printf("A->");
         normalPlasmaSter();
         //control_sterOn();
       }
@@ -1523,17 +1524,20 @@ void handlePlasmaSter()
 
   //PIR control
   if(plasmaInfo.pidOn == TRUE) {
-    if(pidDetect == TRUE) {
-      voicePlay(SWITCH_PIR_DETECT, DELAY_PIR_DETECT);
-      Delay(DELAY_PIR_DETECT);
-      pidDetect = FALSE;
 
-      operatedTime = setTime - plasmaInfo.plasmaTimer;
-        printf("\r\n kwon: PIR control: [Plasma] opTime = %d(%d) = %d - %d\r\n",
-               operatedTime, operatedTime/60, setTime, plasmaInfo.plasmaTimer);
+    // kwon: 2024-5-6, pidDetect를 막아서 인체감지를 skip. 테스트용,
 
-      changeState(STATE_DESTRUCTION,TRUE);
-    }
+    // if(pidDetect == TRUE) {
+    //   voicePlay(SWITCH_PIR_DETECT, DELAY_PIR_DETECT);
+    //   Delay(DELAY_PIR_DETECT);
+    //   pidDetect = FALSE;
+
+    //   operatedTime = setTime - plasmaInfo.plasmaTimer;
+    //     printf("\r\n kwon: PIR control: [Plasma] opTime = %d(%d) = %d - %d\r\n",
+    //            operatedTime, operatedTime/60, setTime, plasmaInfo.plasmaTimer);
+
+    //   changeState(STATE_DESTRUCTION,TRUE);
+    // }
   }
   //0.8v -> ���� ��ư�� ������ ���� ���� ���°� ǥ�õȴ�.
   // SJM 201117 Can't display current Intensity when used with TNY_1311S ==> No Problem
@@ -2695,8 +2699,11 @@ void serial_plasma(struct IotCommandSet *command){//cho: 2024-4-15
     control_relayAllOff();
     // Default setting & LED display
    
-    //2024-5-5 : 인체감지 모드를 OFF, 플라즈마 모드 강제 동작시킴
-    plasmaInfo.pidOn = FALSE;
+    //2024-5-5 : 인체감지 모드는 pidDetect 변수이다. plasmaInfo.pidOn = TRUE 세팅을 하면 , 플라즈마 모드에서 이 변수를 체크해서 중단한다.
+    //2024-5-6 : 예약 모드를 지원하지 않는다. 
+    plasmaInfo.pidOn = TRUE;
+    plasmaInfo.rsvOn = FALSE;
+    continueOperation = FALSE;
 
 
     plasmaInfo.pwr = MAX_PLASMA_PWR;
@@ -2706,8 +2713,6 @@ void serial_plasma(struct IotCommandSet *command){//cho: 2024-4-15
     plasmaInfo.plasmaTimer = atoi(command->duration) * 60;
   
   
-    continueOperation = FALSE;
-
      //kwon:2024-4-10
     printf("\r\n 1-1. serial_plasma : plasmaInfo.plasmaTimer = %d",plasmaInfo.plasmaTimer );
     printf("\r\n 1-2. serial_plasma : plasmaInfo.plasmaTimer/600 = %d",plasmaInfo.plasmaTimer/600 );
@@ -2788,20 +2793,31 @@ void serial_handler(struct IotCommandSet *command){
     if(currentState == STATE_DIS){
       printf("\r\n current state is STATE_DIS");
         g_remoteFlag = 0;
-        //eeprom write 필요.
+      
         changeState(STATE_DIS_STOP, FALSE);
+        
+
     }
     else if(currentState == STATE_ION){
       printf("\r\n current state is STATE_ION");
         g_remoteFlag = 0;
-        //eeprom write 필요.
+       
         changeState(STATE_ION_STOP, FALSE);
     }
     else if(currentState == STATE_STER){
       printf("\r\n current state is STATE_STER");
         g_remoteFlag = 0;
-        //eeprom write 필요.
-        changeState(STATE_STER_STOP, FALSE);
+        changeState(STATE_STER_STOP, FALSE)
+;   
+
+      // kwon: 2024-5-6, 플라즈마 모드 -> 분해 모드로 전환 
+      // operatedTime = setTime - plasmaInfo.plasmaTimer;
+      // printf("\r\n kwon: plasma stop: [Plasma] opTime = %d(%d) = %d - %d\r\n",
+      //          operatedTime, operatedTime/60, setTime, plasmaInfo.plasmaTimer);
+
+      // changeState(STATE_DESTRUCTION,TRUE);
+
+
     }
      else if(currentState == STATE_DESTRUCTION){
       printf("\r\n current state is STATE_DESTRUCTION");

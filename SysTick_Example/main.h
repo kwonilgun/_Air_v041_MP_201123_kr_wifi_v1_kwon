@@ -45,6 +45,7 @@ struct SwitchInfo {
 };
 
 // AWS iot cloud에서 보내온 명령 세트
+// 2024-5-5: wifi ready command set 추가
 struct IotCommandSet
 {
     char start[10];
@@ -52,6 +53,7 @@ struct IotCommandSet
     char mode[10];    //1-살균, 2-음이온, 3-프라즈마 
     char wind[10];  //1-약하게, 2-중간, 3-강하게
     char duration[10];
+    char wifi[10];  //on
 
 };
 

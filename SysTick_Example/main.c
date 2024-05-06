@@ -92,7 +92,7 @@ unsigned char statusDIP1 = 1;
 
 
 //kwon: 2024-4-13 
-struct IotCommandSet iotCommandSet = {"","","","",""};
+struct IotCommandSet iotCommandSet = {"","","","","",""};
 
 
 //void USART6_SendString(char *str){
@@ -190,9 +190,16 @@ void serial_input_cmd_handler() {
           
             printf("\r\n main.c switch type = %s", switchInfo.switchType);
             printf("\r\n main.c switch state = %s", switchInfo.switchState);
-            
+
+
+            if(strcmp(switchInfo.switchType, "wifi")  == 0 && strcmp(switchInfo.switchState, "on") == 0) {
+               printf("\r\n wifi ready on from serial-6\r\n");
+               
+              strcpy(iotCommandSet.wifi, "on");
+                      
+            }
           
-            if(strcmp(switchInfo.switchType, "power")  == 0 && strcmp(switchInfo.switchState, "on") == 0) {
+            else if(strcmp(switchInfo.switchType, "power")  == 0 && strcmp(switchInfo.switchState, "on") == 0) {
                printf("\r\n rx power on from serial-6\r\n");
                
               //  g_remoteFlag = TNY_POWER_FLAG;
@@ -412,8 +419,9 @@ int main(void)
     //kwon :2024-4-9 ,uart6로 들어온 명령을 처리 
     serial_input_cmd_handler();
     
-    // kwon : 2023-4-15, uart6 command hander 
-    if(strlen(iotCommandSet.start) > 0){
+    // kwon : 2024-4-15, uart6 command hander
+    // 2024-5-5: wifi ready on 추가 
+    if(strcmp(iotCommandSet.wifi, "on") == 0 && strlen(iotCommandSet.start) > 0){
 
       printf("\r\n\r\n<<......serial command start ....>>");
       serial_handler(&iotCommandSet);
@@ -437,16 +445,15 @@ int main(void)
       if(oneSecFlag == TRUE) {
 
 
-          //kwon 5초 마다 uart6로 전송을한다. TX test용
-          // if(counter %5 == 0) {
-          //   uint8_t str[] = "[hello  OZS]";  
-          //  USART6_SendString(USART6, (uint8_t *) str);
-          // }
-          //  counter++;
+          //kwon: 2024-5-6, wifi가 on이 아니면 확인을 체크한다. 
+          // 부팅 시에 8266 모듈이 wifi가 연결이 되었는지 확인을 한다.
+          if(!(strcmp(iotCommandSet.wifi, "on") == 0) ) {
+            uint8_t str[] = "[hello 8266]";  
+            USART6_SendString(USART6, (uint8_t *) str);
+          }
           
-         
-         
-         
+          
+        
           oneSecFlag = FALSE;
           RTC_GetTime(RTC_Format_BIN, &RTC_TimeStructure);
           (void)RTC->DR;
