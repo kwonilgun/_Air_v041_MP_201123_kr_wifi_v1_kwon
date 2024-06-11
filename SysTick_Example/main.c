@@ -14,6 +14,7 @@
 
 //git 테스트를 해 본다.  다시바꾸어본다
 #include "main.h"
+#include "util.h"
 
 /** @addtogroup STM32F4xx_StdPeriph_Examples
   * @{
@@ -43,7 +44,11 @@ unsigned int currentState, isFirstEntrance;   // SJM 190711 never used , isReady
 unsigned int destState;         // SJM 201121 added for consumable
 unsigned char pidDetect;
 unsigned int oneSecFlag;
+extern unsigned char halfSecFlag;
+
 unsigned int g_remoteFlag;
+
+
 
 SYSTEMINFO sysConfig;
 PLASMAINFO plasmaInfo;
@@ -149,18 +154,18 @@ void printBinary(uint8_t data) {
 void USART6_SendString(USART_TypeDef* USARTx, uint8_t* string)
 {
   
-   printf("\r\n USART6_SendString tx= ");
+  printf("\r\n USART6_SendString tx= %s", string);
     while (*string)
     {
         // Wait until transmit data register is empty
-      // printf("\r\n data sent  before");
-      printf("%c", *string);
+     
+      // printf("%c", *string);
       // printf("\r\n  send char hex = %x", *string);
 
 
         // Send a character to usart6
       USART_SendData(USARTx, *string & 0xff) ;
-      // Delay(10);
+      Delay(5);
 
        while (USART_GetFlagStatus(USART6, USART_FLAG_TC) == RESET) {}
         string++;
@@ -224,76 +229,53 @@ void serial_input_cmd_handler() {
               strcpy(iotCommandSet.mode, "6");
                       
             }
+
+            else if(strcmp(switchInfo.switchType, "status")  == 0 && strcmp(switchInfo.switchState, "status") == 0) {
+               printf("\r\n rx status check call from serial-6\r\n");
+               
+              //  g_remoteFlag = TNY_POWER_FLAG;
+              // iotCommandSet.power = 'off';
+              strcpy(iotCommandSet.mode, "7");
                       
-            else if(strcmp(switchInfo.switchType, "mode")  == 0 && strcmp(switchInfo.switchState, "1") == 0) {
-               printf("\r\n rx plasma mode from serial-6\r\n");
-              //  iotCommandSet.wind = '1';
-               strcpy(iotCommandSet.mode, "1");
-             
             }
-            else if(strcmp(switchInfo.switchType, "mode")  == 0 && strcmp(switchInfo.switchState, "2") == 0) {
-               printf("\r\n rx disinfect mode from serial-6\r\n");
-              // iotCommandSet.wind = '2';
-              strcpy(iotCommandSet.mode, "2");
+
+            else if(strcmp(switchInfo.switchType, "status")  == 0 && strcmp(switchInfo.switchState, "sysinfo") == 0) {
+               printf("\r\n rx read system info from serial-6\r\n");
+               
+              //  g_remoteFlag = TNY_POWER_FLAG;
+              // iotCommandSet.power = 'off';
+              strcpy(iotCommandSet.mode, "8");
+                      
             }
-            else if(strcmp(switchInfo.switchType, "mode")  == 0 && strcmp(switchInfo.switchState, "3") == 0) {
-                           printf("\r\n rx ion mode from serial-6 \r\n");
-              //  iotCommandSet.wind = '3'; 
-              strcpy(iotCommandSet.mode, "3");          
-            } 
-            
 
-            else if(strcmp(switchInfo.switchType, "wind")  == 0 && strcmp(switchInfo.switchState, "1") == 0) {
-               printf("\r\n rx wind weak from serial-6\r\n");
-              //  iotCommandSet.wind = '1';
-               strcpy(iotCommandSet.wind, "1");
-             
+            else if(strcmp(switchInfo.switchType, "setup")  == 0 && strcmp(switchInfo.switchState, "voice") == 0) {
+               printf("\r\n rx setup voice 9 from serial-6\r\n");
+               
+              strcpy(iotCommandSet.mode, "9");
+                      
             }
-            else if(strcmp(switchInfo.switchType, "wind")  == 0 && strcmp(switchInfo.switchState, "2") == 0) {
-               printf("\r\n rx wind medium from serial-6\r\n");
-              // iotCommandSet.wind = '2';
-              strcpy(iotCommandSet.wind, "2");
+
+            else if(strcmp(switchInfo.switchType, "prepare")  == 0 && strcmp(switchInfo.switchState, "voice") == 0) {
+               printf("\r\n rx prepare voice 10 from serial-6\r\n");
+               
+              strcpy(iotCommandSet.mode, "10");
+                      
             }
-            else if(strcmp(switchInfo.switchType, "wind")  == 0 && strcmp(switchInfo.switchState, "3") == 0) {
-                           printf("\r\n rx wind strong medium from serial-6\r\n");
-              //  iotCommandSet.wind = '3'; 
-              strcpy(iotCommandSet.wind, "3");          
-            } 
+                      
+           
+            else if(strcmp(switchInfo.switchType, "\"start\"")  == 0 ){
+              printf("\r\n rx start: from serial-6\r\n");
+              // printf("\r\n switchInfo.switchState= %s", switchInfo.switchState);
 
+              // int action, duration, wind_speed;
+              char action_str[10], duration_str[10], wind_speed_str[10]; // 변환된 문자열을 저장할 배열
 
-             else if(strcmp(switchInfo.switchType, "duration")  == 0 && strcmp(switchInfo.switchState, "30") == 0) {
-               printf("\r\n rx duration - STATE_SERIAL_READY_DIS : 30 from serial-6\r\n");
-              //  g_remoteFlag = TNY_MODE_FLAG;
+              // 함수 호출
+              processStartState(switchInfo.switchState, action_str, duration_str, wind_speed_str);
 
-              //  changeState(STATE_SERIAL_READY_DIS, FALSE);
-                // iotCommandSet.duration = "30";
-                strcpy(iotCommandSet.duration, "30");    
-            } 
-             else if(strcmp(switchInfo.switchType, "duration")  == 0 && strcmp(switchInfo.switchState, "60") == 0) {
-               printf("\r\n rx duration: 60 from serial-6\r\n");
-              //  g_remoteFlag = TNY_MODE_FLAG;
-              // iotCommandSet.duration = "60";  
-              strcpy(iotCommandSet.duration, "60");         
-            } 
-             else if(strcmp(switchInfo.switchType, "duration")  == 0 && strcmp(switchInfo.switchState, "90") == 0) {
-               printf("\r\n rx duration: 90 from serial-6\r\n");
-    
-              //  iotCommandSet.duration = "90";
-              strcpy(iotCommandSet.duration, "90");
-                         
-            } 
-            else if(strcmp(switchInfo.switchType, "start")  == 0 && strcmp(switchInfo.switchState, "act") == 0 ){
-              printf("\r\n rx start:act from serial-6");
-
-              printf("\r\n iotCommandSet.power = %s ", iotCommandSet.power);
-
-              printf("\r\n iotCommandSet.mode = %s ", iotCommandSet.mode);
-
-              printf("\r\n iotCommandSet.wind = %s ", iotCommandSet.wind);
-              printf("\r\n iotCommandSet.duration = %s ", iotCommandSet.duration);
-
-              // activate serial_handler
-              strcpy(iotCommandSet.start, "start");
+              strcpy(iotCommandSet.mode, action_str);
+              strcpy(iotCommandSet.duration, duration_str);    
+              strcpy(iotCommandSet.wind, wind_speed_str);   
                
             }
             
@@ -418,10 +400,14 @@ int main(void)
 
     //kwon :2024-4-9 ,uart6로 들어온 명령을 처리 
     serial_input_cmd_handler();
+
+    
+    
     
     // kwon : 2024-4-15, uart6 command hander
     // 2024-5-5: wifi ready on 추가 
-    if(strcmp(iotCommandSet.wifi, "on") == 0 && strlen(iotCommandSet.start) > 0){
+    // 2024-5-29: comm error fix, change iotCommandSet.mode, 명령체계를 변경했다. 가능한 간단하게 체계를 변경함. 통신 에러가 발생해서 보강
+    if(strcmp(iotCommandSet.wifi, "on") == 0 && strlen(iotCommandSet.mode) > 0){
 
       printf("\r\n\r\n<<......serial command start ....>>");
       serial_handler(&iotCommandSet);
@@ -434,6 +420,14 @@ int main(void)
       strcpy(iotCommandSet.duration, "");
     }
     
+    //kwon: 2024-5-6, wifi가 on이 아니면 확인을 체크한다. 
+    // 부팅 시에 8266 모듈이 wifi가 연결이 되었는지 확인을 한다.
+    if(halfSecFlag == TRUE) {
+        if(!(strcmp(iotCommandSet.wifi, "on") == 0) ) {
+              uint8_t str[] = "[hello 8266]";  
+              USART6_SendString(USART6, (uint8_t *) str);
+            }
+    }
 
 
     if(currentState == STATE_POWER_OFF || currentState == STATE_READY_STER || currentState == STATE_STER_STOP ||
@@ -447,10 +441,10 @@ int main(void)
 
           //kwon: 2024-5-6, wifi가 on이 아니면 확인을 체크한다. 
           // 부팅 시에 8266 모듈이 wifi가 연결이 되었는지 확인을 한다.
-          if(!(strcmp(iotCommandSet.wifi, "on") == 0) ) {
-            uint8_t str[] = "[hello 8266]";  
-            USART6_SendString(USART6, (uint8_t *) str);
-          }
+          // if(!(strcmp(iotCommandSet.wifi, "on") == 0) ) {
+          //   uint8_t str[] = "[hello 8266]";  
+          //   USART6_SendString(USART6, (uint8_t *) str);
+          // }
           
           
         

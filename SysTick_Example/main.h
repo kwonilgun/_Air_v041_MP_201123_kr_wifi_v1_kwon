@@ -41,7 +41,9 @@
 // SwitchInfo : iot Cloud send command data type
 struct SwitchInfo {
     char switchType[20];
-    char switchState[20];
+
+    //kwon: 2024-5-30: switchState 사이즈 20->200 변경
+    char switchState[100];
 };
 
 // AWS iot cloud에서 보내온 명령 세트
@@ -397,6 +399,10 @@ typedef struct {
 //#ifdef  INCLUDE_STOP_MODE
   unsigned char stopped;
 //#endif
+
+// 2024.6.11 : kwon 버전 정보
+  unsigned int versionNumber;
+
 #if ( MACHINE == MONEY_STERILIZER )
   unsigned short sterTime;
   unsigned short decompTime;

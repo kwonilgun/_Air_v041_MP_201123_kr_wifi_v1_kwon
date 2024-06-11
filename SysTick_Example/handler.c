@@ -1,5 +1,6 @@
 #include "handler.h"
 #include "led.h"
+#include "util.h"
 
 #define ENG_RELAY_TEST          0
 #define ENG_FACTORY_RESET       1
@@ -1644,8 +1645,8 @@ void handleDestruction()
 //    ledAllOff();    
   
       destructionTimer = operatedTime/60;
-      if (destructionTimer<30)      destructionTimer=30;
-      else if (destructionTimer>120) destructionTimer=120;
+      if (destructionTimer<30)      destructionTimer=1;
+      // else if (destructionTimer>120) destructionTimer=120;
       
       destructionTimer *= 60;
 
@@ -2730,33 +2731,26 @@ void serial_plasma(struct IotCommandSet *command){//cho: 2024-4-15
 
 void serial_handler(struct IotCommandSet *command){
 
-  printf("\r\n\r\n******** serial_handler start ***************\r\n"); 
-  printf("\r\n serial_handler command power = %s", command->power); 
+
+  // printf("\r\n\r\n******** serial_handler start ***************\r\n"); 
+  // printf("\r\n serial_handler command power = %s", command->power); 
   printf("\r\n serial_handler command mode = %s", command->mode);
-  printf("\r\n serial_handler command wind = %s", command->wind);
-  printf("\r\n serial_handler command duration  = %s\r\n", command->duration);
+  // printf("\r\n serial_handler command wind = %s", command->wind);
+  // printf("\r\n serial_handler command duration  = %s\r\n", command->duration);
 
  
   if(strcmp(command->mode, "1") == 0)//plasma mode  //cho: 2024-4-15
   {
     printf("\r\n plasma mode enter 1....");
     serial_plasma(command);
-    // strcpy(command->mode, "2");
-    // printf("\r\n disinfect mode enter ....");
-    // serial_disinfect(command);
-    // strcpy(command->mode, "3");
-    // printf("\r\n ion mode enter ....");
-    // serial_ion(command); 
+
   }
 
   else if(strcmp(command->mode, "2") == 0) //disinfect mode  //cho: 2024-4-15
   {
-   
     
       printf("\r\n disinfect mode start ....");
       serial_disinfect(command);
-    
-    
   }
 
   else if(strcmp(command->mode, "3") == 0)
@@ -2784,7 +2778,7 @@ void serial_handler(struct IotCommandSet *command){
     }
     else{
       printf("\r\n error: current state is power off");
-    }                                                                                                                                                                       
+    }                                                                                                                                                              
   }
 
   else if(strcmp(command->mode, "6") == 0){
@@ -2793,22 +2787,18 @@ void serial_handler(struct IotCommandSet *command){
     if(currentState == STATE_DIS){
       printf("\r\n current state is STATE_DIS");
         g_remoteFlag = 0;
-      
         changeState(STATE_DIS_STOP, FALSE);
-        
-
     }
     else if(currentState == STATE_ION){
       printf("\r\n current state is STATE_ION");
         g_remoteFlag = 0;
-       
+  
         changeState(STATE_ION_STOP, FALSE);
     }
     else if(currentState == STATE_STER){
       printf("\r\n current state is STATE_STER");
         g_remoteFlag = 0;
-        changeState(STATE_STER_STOP, FALSE)
-;   
+        changeState(STATE_STER_STOP, FALSE);   
 
       // kwon: 2024-5-6, 플라즈마 모드 -> 분해 모드로 전환 
       // operatedTime = setTime - plasmaInfo.plasmaTimer;
@@ -2831,15 +2821,136 @@ void serial_handler(struct IotCommandSet *command){
         
     }
     else{
-      printf("\r\n current state error..... ");
+      printf("\r\n current state error..... currentState = ", currentState);
     }
   }
     
+  else if(strcmp(command->mode, "7") == 0){
+    printf("\r\n status check  7.... current state = %d", currentState); 
 
+    // str 변수 앞뒤로 [, ] 추가
+    // 전송포맷 : [STATE_DIS:1795] , 상태:시간  
+    char formatted_str[100];  // 충분히 큰 크기로 배열 선언
+    uint8_t str[100] = "";
+
+
+    if(currentState == STATE_POWER_OFF ){
+        strcpy(str,"[OZS:POWER_OFF:0]" ) ;
+        USART6_SendString(USART6, (uint8_t *) str);
+    }
+    else if(currentState == STATE_DIS ){
+
+    
+
+        //2024.6.8 : 시간정보 초단위로 변경
+       
+        printf("\r\n disInfo.disTimer = %d", disInfo.disTimer);
+        formatStateDisMessage("OZS:STATE_DIS:", disInfo.disTimer, formatted_str, sizeof(formatted_str));
+
+
+        printf("\r\n formatted_str =  %s", formatted_str);
+        
+        USART6_SendString(USART6, (uint8_t *) formatted_str);
+    }
+    else if(currentState == STATE_ION ){
+   
+        printf("\r\n ionInfo.ionTime = %d", ionInfo.ionTimer);
+        formatStateDisMessage("OZS:STATE_ION:", ionInfo.ionTimer, formatted_str, sizeof(formatted_str));
+
+
+        printf("\r\n formatted_str =  %s", formatted_str);
+        USART6_SendString(USART6, (uint8_t *) formatted_str);
+    }
+    else if(currentState == STATE_STER ){
+    
+        printf("\r\n plasmaInfo.plasmaTimere = %d", plasmaInfo.plasmaTimer);
+      
+       formatStateDisMessage("OZS:STATE_STER:", plasmaInfo.plasmaTimer, formatted_str, sizeof(formatted_str));
+
+
+        printf("\r\nSTATE_STER formatted_str =  %s", formatted_str);
+        USART6_SendString(USART6, (uint8_t *) formatted_str);
+    }
+    else if(currentState == STATE_DESTRUCTION ){
+     
+        printf("\r\n destruction timer = %d", destructionTimer);
+      
+       formatStateDisMessage("OZS:STATE_DESTRUCTION:", destructionTimer, formatted_str, sizeof(formatted_str));
+
+
+        printf("\r\n STATE_DESTRUCTION formatted_str =  %s", formatted_str);
+        
+       
+        USART6_SendString(USART6, (uint8_t *) formatted_str);
+    }
+
+    else if(currentState == STATE_DIS_STOP ){
+       strcpy(str,"[OZS:STATE_DIS_STOP:0]" ) ;
+        USART6_SendString(USART6, (uint8_t *) str);
+    }
+    else if(currentState == STATE_ION_STOP ){
+       strcpy(str,"[OZS:STATE_ION_STOP:0]" ) ;
+        USART6_SendString(USART6, (uint8_t *) str);
+    }
+    else if(currentState == STATE_STER_STOP ){
+       strcpy(str,"[OZS:STATE_STER_STOP:0 ]" ) ;
+        USART6_SendString(USART6, (uint8_t *) str);
+    }
+    else if(currentState == STATE_READY_STER ){
+       strcpy(str,"[OZS:STATE_READY_STER:0 ]" ) ;
+        USART6_SendString(USART6, (uint8_t *) str);
+    }
+    else if(currentState == STATE_READY_DIS ){
+       strcpy(str,"[OZS:STATE_READY_DIS:0 ]" ) ;
+        USART6_SendString(USART6, (uint8_t *) str);
+    }
+    else if(currentState == STATE_READY_ION ){
+       strcpy(str,"[OZS:STATE_READY_ION:0 ]" ) ;
+        USART6_SendString(USART6, (uint8_t *) str);
+    }
+   
+    else{
+        strcpy(str,"[OZS:STATE_ETC:0]" ) ;
+        USART6_SendString(USART6, (uint8_t *) str);
+    } 
+
+  }
+  
+  else if(strcmp(command->mode,"8") == 0){
+    char str[100] = ""; 
+
+    printf("\r\n read system info  8....");
+
+    formatSystemInfoMessage(str, sizeof(str));
+    USART6_SendString(USART6,  (uint8_t *) str);
+
+
+  }
+
+  else if(strcmp(command->mode, "9") == 0)
+  {
+    printf("\r\n setup voice  mode = %s....", command->mode);
+    voicePlay(SWITCH_SETUP_MODE, DELAY_SETUP_MODE );
+     Delay(DELAY_SETUP_MODE);
+    
+    
+  }
+
+  else if(strcmp(command->mode, "10") == 0)
+  {
+    printf("\r\n prepare voice  mode = %s....", command->mode);
+    voicePlay(SWITCH_PREPARE, DELAY_PREPARE);
+    Delay(DELAY_PREPARE);
+    
+  }
+  
   else //error mode //cho: 2024-4-15
   {
     printf("\r\n mode error ....");
   }
+
+  
+
 }
 
 

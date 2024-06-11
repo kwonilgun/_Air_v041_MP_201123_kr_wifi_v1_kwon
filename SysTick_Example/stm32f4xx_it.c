@@ -562,12 +562,12 @@ void parseSwitchInfo(const char *input, struct SwitchInfo *info) {
 
     // 
      char *token = strtok(trimmedInput, ":");
-    //  printf("token = %s \r\n", token );
+      printf("token = %s \r\n", token );
      strcpy(info->switchType, token);
      
-     token = strtok(NULL, ":");
-    //  printf("token = %s \r\n", token );
-     strcpy(info->switchState, token);
+     char *value = strtok(NULL, "");
+      printf("token = %s \r\n", value );
+     strcpy(info->switchState, value);
      
 
     free(trimmedInput); 
@@ -575,7 +575,7 @@ void parseSwitchInfo(const char *input, struct SwitchInfo *info) {
 
 void process_received_data(char *data, int length) {
 
-    // printf("\r\nReceived string: %s\r\n", data);
+    printf("\r\nReceived string: %s\r\n", data);
     parseSwitchInfo(data, &switchInfo);
 }
 

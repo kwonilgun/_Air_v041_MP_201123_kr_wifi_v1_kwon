@@ -1327,6 +1327,12 @@
         <file>
             <name>$PROJ_DIR$\stm32f4xx_it.c</name>
         </file>
+        <file>
+            <name>$PROJ_DIR$\util.c</name>
+        </file>
+        <file>
+            <name>$PROJ_DIR$\util.h</name>
+        </file>
     </group>
     <file>
         <name>$PROJ_DIR$\readme.txt</name>

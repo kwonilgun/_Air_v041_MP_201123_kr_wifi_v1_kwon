@@ -69,7 +69,11 @@ void control_sterOn()
       plate ^= 1;           // toggle plate
     }
   }
-  relayControl(RELAY_AC_FAN1, RELAY_ON);          //FAN1  
+
+
+ // kwon --> test
+  // printf("\n\r ----plazma fan 1, 2 -- off \n\r"); 
+  relayControl(RELAY_AC_FAN1, RELAY_ON);          //FAN1 
   relayControl(RELAY_AC_FAN2, RELAY_ON);          //FAN2
   relayControl(RELAY_AC_UV, RELAY_OFF);     //UV Lamp
   
@@ -135,12 +139,13 @@ void control_disRelayOn()
 {
 //#ifndef HPA_36C
 #if ( MACHINE == HPA_130W)
-  relayControl(RELAY_AC_FAN2, RELAY_ON);   //FAN2
+  printf("\n\r control_disRealyOn  .... start \n\r");
+  relayControl(RELAY_AC_FAN2, RELAY_ON);   //FAN2 - 5 out
   relayControl(RELAY_AC_UV, RELAY_ON);     //O3 UV
 #endif
   relayControl(RELAY_RCI, RELAY_ON);       //RCI
   relayControl(RELAY_SPI, RELAY_ON);       //SPI
-  relayControl(RELAY_AC_FAN1, RELAY_ON);          //FAN1  
+  relayControl(RELAY_AC_FAN1, RELAY_ON);          //FAN1 -2 in
 }
 
 void control_IonOn()

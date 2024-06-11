@@ -152,6 +152,26 @@ void command_exec()
     }
 #endif
 
+//========= 2024.6.11: kwon:  Version number read/write ==============================    
+
+    if (strcmp(opcode,"wversion")==0) {	
+      printf("write version  test\r\n");
+      value = CheckValue(pcommand[1]);
+      value2 = CheckValue(pcommand[2]);
+
+      printf("version number %d", value);
+
+      sysConfig.versionNumber = value;
+
+      systemWrite();
+      
+    }
+
+    if (strcmp(opcode,"rversion")==0) {	
+      printf("read version = %d\r\n", readVersionFromEeprom());
+     
+    }
+// =================================================================================
     if (strcmp(opcode,"eetest")==0) {	
       printf("eeprom test\r\n");
       value = CheckValue(pcommand[1]);

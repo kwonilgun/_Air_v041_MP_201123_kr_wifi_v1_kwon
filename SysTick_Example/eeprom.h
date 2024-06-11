@@ -20,4 +20,6 @@ void systemWrite();
 void systemRead();
 void UpgradeEEPWrite(uint16_t data);
 
+// 2024.6.11 : kwon 
+int readVersionFromEeprom();
 #endif /* __EEPROM_H */

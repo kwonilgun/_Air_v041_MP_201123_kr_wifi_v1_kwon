@@ -68,7 +68,7 @@ void systemRead()
     sysConfig.dutyRatio = DEF_DUTY_RATIO;
 #endif
 
-
+/* KWON :2024.6.11 modify, 플라즈마 동작 시에, systemRead()를 수행하면 시간이 리셋이 된다. 이것을 해결하고 기존 코드를 유지하기 위해서 변경
   if ((sysConfig.plasmaInfo.pidOn!=0)&&(sysConfig.plasmaInfo.pidOn!=1))
     sysConfig.plasmaInfo.pidOn = TRUE;
   if ((sysConfig.plasmaInfo.pwr<1)||(sysConfig.plasmaInfo.pwr>MAX_PLASMA_PWR))
@@ -82,7 +82,21 @@ void systemRead()
 
 
   plasmaInfo = sysConfig.plasmaInfo;
-  printf("eeread!!!\r\n");
+*/
+
+  if ((sysConfig.plasmaInfo.pidOn!=0)&&(sysConfig.plasmaInfo.pidOn!=1))
+    plasmaInfo.pidOn = TRUE;
+  if ((sysConfig.plasmaInfo.pwr<1)||(sysConfig.plasmaInfo.pwr>MAX_PLASMA_PWR))
+    plasmaInfo.pwr = MAX_PLASMA_PWR;
+  if ((sysConfig.plasmaInfo.rsvOn!=0)&&(sysConfig.plasmaInfo.rsvOn!=1))
+    plasmaInfo.rsvOn = FALSE;
+  if ((sysConfig.plasmaInfo.isScheduled!=0)&&(sysConfig.plasmaInfo.isScheduled!=1))
+    plasmaInfo.isScheduled = FALSE;
+  if ((sysConfig.plasmaInfo.rsvTime<0)||(sysConfig.plasmaInfo.rsvTime>23))
+    plasmaInfo.rsvTime = 1;     // to avoid RTC Fail...
+
+
+  printf("modify eeread !!!\r\n");
 
   if (plasmaInfo.rsvOn != TRUE) {   // SJM 200415 initialize
     if (plasmaInfo.rsvOn != FALSE) {
@@ -95,4 +109,20 @@ void systemRead()
     }
   }
 
+}
+
+// 2024.6.11 : kwon , version number from eeprom
+int readVersionFromEeprom() {
+   unsigned char buffer[SYSTEM_SIZE];
+  unsigned short NumDataRead = SYSTEM_SIZE;
+
+  printf("System size : %d\r\n", NumDataRead);
+  
+  sEE_WaitEepromStandbyState();
+  sEE_ReadBuffer(buffer, sEE_READ_ADDRESS1, &NumDataRead);
+  Delay(100);
+    
+  memcpy(&sysConfig, buffer, SYSTEM_SIZE);
+
+  return sysConfig.versionNumber;
 }

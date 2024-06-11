@@ -59,4 +59,6 @@
         OZS/lib/Project/AIR_LOADER_200421/DS30/output/Exe/Air_Loader200421.bin 
         로더가 깨진 경우 이 파일을 다운로드한다. 
 
-7. 
+7. 2024-5-29:
+    Air bin 디렉토리:
+        C:\Users\82109\Documents\lib\Project\STM32F4xx_StdPeriph_Examples\Project\STM32F4xx_StdPeriph_Examples\_Air_v041_MP_201123_kr_wifi_v1_kwon
